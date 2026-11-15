@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="第二大腦中樞" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="description" content="個人第二大腦中樞 (PARA + CODE)，支援持續語音速記自動分類、自訂系統傳送門與 Google 雲端同步。" />
-  <title>個人第二大腦中樞 — 語音速記・PARA 知識庫・系統傳送門</title>
+  <meta name="description" content="個人第二大腦中樞 (PARA + CODE)，支援持續語音速記自動分類、自訂系統傳送門與雙向 Google 雲端安全同步。" />
+  <title>個人第二大腦中樞 v2 — 語音速記・PARA 知識庫・系統傳送門</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='30' fill='%230F766E'/%3E%3Cpath d='M42 40c-9 0-16 7-16 16 0 6 3 11 8 14-1 2-2 5-2 8 0 8 7 14 15 14h8V36h-5c-3 0-6 2-8 4zm36 0c9 0 16 7 16 16 0 6-3 11-8 14 1 2 2 5 2 8 0 8-7 14-15 14h-8V36h5c3 0 6 2 8 4z' fill='none' stroke='white' stroke-width='6' stroke-linejoin='round'/%3E%3Ccircle cx='60' cy='30' r='6' fill='%23FBBF24'/%3E%3C/svg%3E" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -165,6 +165,16 @@
       border-radius: 4px;
       font-weight: 600;
     }
+
+    /* Workplace Privacy Blur Mode */
+    body.privacy-blur-active .privacy-sensitive {
+      filter: blur(7px);
+      transition: filter 0.2s ease;
+      user-select: none;
+    }
+    body.privacy-blur-active .privacy-sensitive:hover {
+      filter: blur(0px);
+    }
   </style>
 </head>
 <body class="pb-24">
@@ -172,7 +182,7 @@
   <!-- Top Header & Navigation -->
   <header class="sticky top-0 z-30 bg-[#F5F2EB]/95 backdrop-blur-md border-b border-[#E6E1D8]">
     <div class="max-w-4xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
           <div class="w-10 h-10 rounded-xl bg-[#0F766E] text-white flex items-center justify-center shadow-sm font-bold text-lg">
             🧠
@@ -180,11 +190,16 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base sm:text-lg font-bold tracking-tight text-[#1C1917]">個人第二大腦中樞</h1>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#0F766E] border border-[#A7F3D0]">PARA + CODE</span>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#0F766E] border border-[#A7F3D0]">v2.0 資安強化版</span>
             </div>
-            <p class="text-xs text-[#57534E]">語音速記・四大領域管理・純前端隱私保護架構</p>
+            <p class="text-xs text-[#57534E]">語音速記・PARA 知識庫・雙向安全雲端同步</p>
           </div>
         </div>
+
+        <!-- Privacy Blur Toggle Button -->
+        <button type="button" id="privacyBlurBtn" title="辦公室防窺遮罩 (快捷鍵 Alt+P)" class="px-2.5 py-1.5 rounded-xl border border-[#D5CFC4] bg-white text-xs font-bold text-[#57534E] hover:border-[#0F766E] transition-all shrink-0">
+          👁️ 防窺遮罩：關
+        </button>
       </div>
 
       <!-- Navigation Tabs -->
@@ -254,10 +269,10 @@
             點擊麥克風說出想法、待辦、會議備忘或學習心得
           </h2>
           <p class="text-xs text-[#57534E] max-w-lg mt-0.5">
-            支援持續聆聽（講完停頓 3 秒或再按一下結束），系統會自動判斷 <strong class="text-[#0F766E]">PARA 分類</strong>、<strong class="text-[#0F766E]">領域標籤</strong> 與 <strong class="text-[#0F766E]">目標日期</strong>，所有資料僅保存在您的裝置瀏覽器中。
+            支援持續聆聽（講完停頓 3 秒自動結束），自動辨識 <strong class="text-[#0F766E]">PARA 分類</strong>、<strong class="text-[#0F766E]">領域標籤</strong> 與 <strong class="text-[#0F766E]">口語日期（如：這週三、下禮拜五、十一月二十號）</strong>。
           </p>
 
-          <!-- Big Circular Mic Button -->
+          <!-- Big Circular Mic Button & One-Hand Quick Actions -->
           <div class="my-5 flex flex-col items-center">
             <button type="button" id="voiceCaptureBtn" class="mic-orb" aria-label="啟動或停止語音速記">
               <svg id="micIcon" class="w-10 h-10 mb-1" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -267,8 +282,22 @@
               <span id="micBtnLabel" class="text-xs font-bold tracking-wide">點擊開始說話</span>
             </button>
             <p id="voiceStatusText" class="text-xs font-semibold text-[#57534E] mt-3 min-h-[18px]">
-              準備就緒 — 可直接說：「記一下下週五前要完成專案進度報告」
+              準備就緒 — 可直接說：「記一下這週五前要完成專案進度報告」
             </p>
+
+            <!-- Single-Hand Quick Action Bar right under Mic -->
+            <div class="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+              <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FAF8F4] border border-[#E6E1D8] text-xs font-semibold text-[#57534E] cursor-pointer select-none">
+                <input type="checkbox" id="autoSaveAfterVoiceCheckbox" class="accent-[#0F766E] w-3.5 h-3.5" />
+                <span>⚡ 語音講完直接自動存入</span>
+              </label>
+              <button type="button" id="quickSaveUnderMicBtn" class="px-3.5 py-1.5 rounded-full bg-[#0F766E] text-white text-xs font-bold shadow-xs hover:bg-[#115E59]">
+                ✅ 立即存入
+              </button>
+              <button type="button" id="quickClearUnderMicBtn" class="px-3 py-1.5 rounded-full bg-white border border-[#D5CFC4] text-xs font-bold text-[#57534E] hover:text-[#1C1917]">
+                🔄 清空重講
+              </button>
+            </div>
           </div>
 
           <!-- Live Transcript Box & Demo Trigger -->
@@ -280,7 +309,7 @@
               </button>
             </div>
             <div class="flex gap-2">
-              <input id="spokenRawInput" type="text" placeholder="說話後自動顯示於此，也可直接貼上或輸入整句話按「智慧解析」..." class="field-input w-full rounded-lg px-3 py-2 text-xs sm:text-sm" />
+              <input id="spokenRawInput" type="text" placeholder="說話後自動顯示於此，也可直接輸入整句話按「智慧解析」..." class="field-input w-full rounded-lg px-3 py-2 text-xs sm:text-sm" />
               <button type="button" id="parseRawBtn" class="shrink-0 px-3 py-2 rounded-lg bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-bold transition-all">
                 智慧解析
               </button>
@@ -370,7 +399,7 @@
             查看全部知識庫 →
           </button>
         </div>
-        <div id="recentNotesPreview" class="space-y-2.5"></div>
+        <div id="recentNotesPreview" class="space-y-2.5 privacy-sensitive"></div>
       </div>
     </section>
 
@@ -423,7 +452,7 @@
       </div>
 
       <!-- Vault Notes List -->
-      <div id="vaultNotesContainer" class="space-y-3"></div>
+      <div id="vaultNotesContainer" class="space-y-3 privacy-sensitive"></div>
     </section>
 
     <!-- ==========================================
@@ -435,8 +464,8 @@
       <div class="p-4 rounded-2xl bg-[#ECFDF5] border border-[#A7F3D0] flex items-start gap-3">
         <span class="text-xl">🔒</span>
         <div class="text-xs space-y-1">
-          <p class="font-bold text-[#0F766E]">資安強化架構：您的私人連結僅存於本機瀏覽器</p>
-          <p class="text-[#57534E]">為確保公開部署在 GitHub Pages 時不外洩任何個人雲端檔案 ID、試算表或內部文件名稱，本頁面原始碼完全不含任何私人資料。您可以匯入我們為您準備好的私人設定檔（存放於您的 Google Drive），或自行新增常用連結。</p>
+          <p class="font-bold text-[#0F766E]">資安強化架構：您的私人連結僅存於本機或由雲端加密拉取</p>
+          <p class="text-[#57534E]">本公開網頁原始碼不含任何私人雲端檔案 ID。您可在「☁️ 檢視與同步」設定 GAS 網址與金鑰後點擊 **「⬇️ 從雲端拉取最新資料」**，即可自動載入您在試算表 `01_PARA全景索引與系統傳送門` 中的所有私人系統捷徑，或直接匯入設定檔。</p>
         </div>
       </div>
 
@@ -458,7 +487,7 @@
           </div>
         </div>
 
-        <div id="portalLinksGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        <div id="portalLinksGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 privacy-sensitive"></div>
 
         <!-- Add Custom Portal Link Form -->
         <form id="addPortalForm" class="pt-4 border-t border-[#E6E1D8] grid grid-cols-1 sm:grid-cols-4 gap-2.5">
@@ -482,7 +511,7 @@
     </section>
 
     <!-- ==========================================
-         TAB 4: ☁️ 每週檢視與雲端同步 (SYNC & REVIEW)
+         TAB 4: ☁️ 每週檢視與雲端雙向同步 (SYNC & REVIEW)
          ========================================== -->
     <section id="panelSync" class="hidden space-y-5">
 
@@ -502,19 +531,19 @@
         <p id="weeklyReviewStatus" class="text-xs font-semibold text-[#0F766E]"></p>
       </div>
 
-      <!-- Export / Import & Cloud Sync -->
+      <!-- Export / Import & Two-Way Cloud Sync -->
       <div class="surface-card rounded-2xl p-5 space-y-4">
         <div>
-          <h2 class="text-base font-bold text-[#1C1917]">☁️ 資料匯出、備份與 Google 雲端試算表同步</h2>
-          <p class="text-xs text-[#57534E]">您的筆記僅保存在瀏覽器本機，可隨時匯出為 CSV、Markdown、JSON 或透過加密金鑰同步至個人試算表</p>
+          <h2 class="text-base font-bold text-[#1C1917]">☁️ 雙向雲端安全同步與本機匯出備份</h2>
+          <p class="text-xs text-[#57534E]">支援跨裝置雙向智慧合併（依紀錄 ID 自動去重，絕不誤刪雲端既有資料）與防公式注入安全 CSV 匯出</p>
         </div>
 
         <div class="flex flex-wrap gap-2.5">
           <button type="button" id="exportCsvBtn" class="px-4 py-2.5 rounded-xl bg-[#0F766E] text-white text-xs font-bold shadow-sm hover:bg-[#115E59]">
-            📊 匯出 CSV (Excel / Google Sheets)
+            📊 匯出安全 CSV (Excel / Sheets)
           </button>
           <button type="button" id="exportMdBtn" class="px-4 py-2.5 rounded-xl bg-white border border-[#D5CFC4] text-[#1C1917] text-xs font-bold hover:border-[#0F766E]">
-            📝 匯出 Markdown (NotebookLM / Obsidian 相容)
+            📝 匯出 Markdown (NotebookLM / Obsidian)
           </button>
           <button type="button" id="exportJsonBtn" class="px-4 py-2.5 rounded-xl bg-white border border-[#D5CFC4] text-[#1C1917] text-xs font-bold hover:border-[#0F766E]">
             📦 匯出 JSON 完整備份
@@ -525,29 +554,44 @@
           </label>
         </div>
 
-        <!-- GAS Webhook Sync with Secret Token -->
+        <!-- Two-Way GAS Webhook Sync with Secret Token & Smart Merge -->
         <div class="pt-4 border-t border-[#E6E1D8] space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 class="text-sm font-bold text-[#1C1917]">🔗 Google Apps Script 雲端試算表安全同步</h3>
-              <p class="text-xs text-[#57534E]">腳本加入自訂安全金鑰 (Secret Token) 驗證，防止未經授權的寫入請求</p>
+              <h3 class="text-sm font-bold text-[#1C1917]">🔗 Google Apps Script 跨裝置雙向智慧同步 (v2 防覆蓋版)</h3>
+              <p class="text-xs text-[#57534E]">支援「雙向合併筆記」＋「從試算表自動載入私人傳送門捷徑」，並具備安全金鑰驗證</p>
             </div>
             <button type="button" id="copyGasCodeBtn" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#ECFDF5] text-[#0F766E] border border-[#A7F3D0]">
-              📋 複製安全版 GAS 腳本範本
+              📋 複製 v2 雙向同步 GAS 腳本
             </button>
           </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <input id="gasWebhookInput" type="url" placeholder="GAS 網頁應用程式網址 (https://script.google.com/macros/s/.../exec)" class="field-input sm:col-span-2 rounded-xl px-3.5 py-2 text-xs" />
             <input id="gasTokenInput" type="password" placeholder="自訂同步安全金鑰 (Token)" class="field-input rounded-xl px-3.5 py-2 text-xs" />
           </div>
-          <button type="button" id="syncToCloudBtn" class="px-4 py-2 rounded-xl bg-[#0F766E] text-white text-xs font-bold">
-            ☁️ 立即加密同步至雲端試算表
-          </button>
+
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" id="syncMergeCloudBtn" class="px-4 py-2 rounded-xl bg-[#0F766E] text-white text-xs font-bold hover:bg-[#115E59]">
+                🔄 雙向智慧合併同步 (推薦)
+              </button>
+              <button type="button" id="pullFromCloudBtn" class="px-4 py-2 rounded-xl bg-white border border-[#0F766E] text-[#0F766E] text-xs font-bold hover:bg-[#ECFDF5]">
+                ⬇️ 從雲端拉取最新筆記與傳送門
+              </button>
+            </div>
+
+            <label class="inline-flex items-center gap-1.5 text-xs text-[#57534E] cursor-pointer">
+              <input type="checkbox" id="rememberTokenLocalCheckbox" class="accent-[#0F766E]" />
+              <span>在此個人裝置記住金鑰 (公用電腦勿勾)</span>
+            </label>
+          </div>
+          <p id="cloudSyncStatusText" class="text-xs font-medium text-[#57534E]"></p>
         </div>
 
         <!-- Clear Local Data -->
         <div class="pt-4 border-t border-[#E6E1D8] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <p class="text-xs text-[#57534E]">若在公用電腦使用完畢，可立即清除此瀏覽器內所有快取筆記與設定連結。</p>
+          <p class="text-xs text-[#57534E]">若在公用電腦使用完畢，可立即清除此瀏覽器內所有快取筆記、傳送門與金鑰。</p>
           <button type="button" id="clearAllLocalBtn" class="px-3.5 py-2 rounded-xl bg-[#FFF1F2] border border-[#FECDD3] text-[#E11D48] text-xs font-bold shrink-0">
             🗑️ 清除本機所有資料
           </button>
@@ -591,6 +635,7 @@
     const PORTAL_STORAGE_KEY = 'second_brain_portal_secure_v1';
     const GAS_URL_KEY = 'second_brain_gas_url_v1';
     const GAS_TOKEN_KEY = 'second_brain_gas_token_v1';
+    const AUTO_SAVE_VOICE_KEY = 'second_brain_autosave_voice_v1';
 
     const INITIAL_NOTES = [
       {
@@ -601,10 +646,11 @@
         domain: '#工作管理',
         type: '待辦任務',
         title: '範例：追蹤本週重點專案進度與文件審查',
-        content: '此為示範筆記。您可以點擊上方麥克風進行語音速記，或點擊「匯入 JSON 備份檔」載入您的個人資料。',
+        content: '此為示範筆記。您可以點擊上方麥克風進行語音速記，或至「檢視與同步」從雲端試算表拉取您的個人資料。',
         done: false,
         pinned: true,
-        distilled: false
+        distilled: false,
+        isSample: true
       },
       {
         id: 'SB-002',
@@ -617,7 +663,8 @@
         content: '定期透過語音記帳系統核對本月消費明細並檢查自動備份狀態。',
         done: false,
         pinned: false,
-        distilled: false
+        distilled: false,
+        isSample: true
       },
       {
         id: 'SB-003',
@@ -630,7 +677,8 @@
         content: '將常用的參考文件 PDF 或 Google Docs 匯入 NotebookLM，方便快速提問與交叉比對。',
         done: false,
         pinned: false,
-        distilled: true
+        distilled: true,
+        isSample: true
       }
     ];
 
@@ -666,11 +714,11 @@
     ];
 
     const SAMPLE_VOICE_SENTENCES = [
-      '記一下工作專案下週五前要完成季度簡報與進度彙總',
-      '提醒我明天確認課程學員名單與本月收費狀態',
+      '記一下工作專案這週五前要完成季度簡報與進度彙總',
+      '提醒我下禮拜二確認課程學員名單與本月收費狀態',
       '研究筆記：將經典閱讀心得與實務案例整理進雲端資料庫',
-      '養生心得：運動前先進行熱身與局部溫敷調理效果更好',
-      '理財備忘：月底前檢查信用卡自動對帳與雲端備份檔案'
+      '養生心得：冬天運動前先進行熱身與局部溫敷調理二十五分鐘效果更好',
+      '理財備忘：十一月二十八號前檢查信用卡自動對帳與雲端備份檔案'
     ];
 
     const WEEKLY_STEPS = [
@@ -699,25 +747,39 @@
       return String(rawId || '').replace(/[^a-zA-Z0-9_-]/g, '');
     }
 
+    // Prevent CSV Formula Injection (=, +, -, @, Tab, CR)
+    function sanitizeCsvCell(val) {
+      let s = String(val === null || val === undefined ? '' : val);
+      if (/^[=+\-@\t\r]/.test(s)) {
+        s = "'" + s;
+      }
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+
+    function normalizeNote(n) {
+      return {
+        id: sanitizeId(n.id) || ('SB-' + Math.random().toString(36).slice(2, 7)),
+        createdAt: String(n.createdAt || new Date().toISOString().slice(0, 10)),
+        dueDate: String(n.dueDate || ''),
+        para: String(n.para || '00_Inbox').split(' ')[0],
+        domain: String(n.domain || '#工作管理'),
+        type: String(n.type || '靈感速記'),
+        title: String(n.title || ''),
+        content: String(n.content || ''),
+        done: Boolean(n.done),
+        pinned: Boolean(n.pinned),
+        distilled: Boolean(n.distilled),
+        isSample: Boolean(n.isSample)
+      };
+    }
+
     function loadNotes() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            notes = parsed.map((n) => ({
-              id: sanitizeId(n.id) || ('SB-' + Math.random().toString(36).slice(2, 7)),
-              createdAt: String(n.createdAt || ''),
-              dueDate: String(n.dueDate || ''),
-              para: String(n.para || '00_Inbox'),
-              domain: String(n.domain || '#工作管理'),
-              type: String(n.type || '靈感速記'),
-              title: String(n.title || ''),
-              content: String(n.content || ''),
-              done: Boolean(n.done),
-              pinned: Boolean(n.pinned),
-              distilled: Boolean(n.distilled)
-            }));
+            notes = parsed.map(normalizeNote);
             return;
           }
         }
@@ -777,6 +839,23 @@
         .replace(/'/g, '&#39;');
     }
 
+    // Privacy Blur Lock Toggle
+    const privacyBlurBtn = document.getElementById('privacyBlurBtn');
+    function togglePrivacyBlur() {
+      const active = document.body.classList.toggle('privacy-blur-active');
+      privacyBlurBtn.textContent = active ? '🙈 防窺遮罩：開' : '👁️ 防窺遮罩：關';
+      privacyBlurBtn.className = active
+        ? 'px-2.5 py-1.5 rounded-xl border border-[#0F766E] bg-[#ECFDF5] text-xs font-bold text-[#0F766E] transition-all shrink-0'
+        : 'px-2.5 py-1.5 rounded-xl border border-[#D5CFC4] bg-white text-xs font-bold text-[#57534E] hover:border-[#0F766E] transition-all shrink-0';
+    }
+    privacyBlurBtn.addEventListener('click', togglePrivacyBlur);
+    document.addEventListener('keydown', (e) => {
+      if (e.altKey && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        togglePrivacyBlur();
+      }
+    });
+
     function switchTab(tab) {
       const panels = ['capture', 'vault', 'portal', 'sync'];
       panels.forEach((p) => {
@@ -818,7 +897,21 @@
       document.getElementById('navNoteCount').textContent = notes.length;
     }
 
-    // Smart Spoken Chinese Note Parser
+    // Convert Chinese numerals (一~三十一) for spoken dates like "十一月二十五號"
+    function parseChineseSmallInt(str) {
+      if (!str) return null;
+      if (/^\d+$/.test(str)) return parseInt(str, 10);
+      const map = { '零':0, '一':1, '二':2, '兩':2, '三':3, '四':4, '五':5, '六':6, '七':7, '八':8, '九':9 };
+      if (str === '十') return 10;
+      if (str.startsWith('十')) return 10 + (map[str.slice(1)] || 0);
+      const parts = str.split('十');
+      if (parts.length === 2) {
+        return (map[parts[0]] || 1) * 10 + (map[parts[1]] || 0);
+      }
+      return map[str] || null;
+    }
+
+    // Enhanced Natural Language Date & PARA Parser for Taiwanese Mandarin
     function parseSpokenSecondBrain(rawText) {
       const text = String(rawText || '').trim();
       if (!text) return null;
@@ -827,15 +920,15 @@
       let domain = '#工作管理';
       let type = '靈感速記';
 
-      if (/易經|卜卦|卦象|經典|研究|國學/.test(text)) {
+      if (/易經|卜卦|卦象|爻辭|經典|研究|國學/.test(text)) {
         domain = '#國學研究';
         para = '03_Resources';
         type = '知識筆記';
-      } else if (/課堂|收費|學員|學費|點名|上課|課程/.test(text)) {
+      } else if (/築夢|課堂|收費|學員|學費|點名|上課|課程/.test(text)) {
         domain = '#課程營運';
         para = '02_Areas';
         type = '待辦任務';
-      } else if (/太極|溫敷|按推|養生|運動|健康|調理/.test(text)) {
+      } else if (/太極|原始點|溫敷|按推|養生|運動|健康|調理/.test(text)) {
         domain = '#健康養生';
         para = '03_Resources';
         type = '知識筆記';
@@ -843,7 +936,7 @@
         domain = '#理財記帳';
         para = '02_Areas';
         type = '待辦任務';
-      } else if (/家人|家庭|醫院|回診|檢查|證件/.test(text)) {
+      } else if (/家人|家庭|醫院|回診|檢查|證件|相簿/.test(text)) {
         domain = '#家庭生活';
         para = '02_Areas';
         type = '待辦任務';
@@ -851,12 +944,12 @@
         domain = '#AI創客';
         para = '03_Resources';
         type = '靈感速記';
-      } else if (/簽呈|細則|人事|會議|簡報|專案|報告/.test(text)) {
+      } else if (/簽呈|增補|細則|工管|預算|室務|人事|會議|簡報|專案|報告|輪調|調薪/.test(text)) {
         domain = '#工作管理';
-        para = /簽呈|提報|彙總|專案|報告/.test(text) ? '01_Projects' : '02_Areas';
+        para = /簽呈|增補|提報|彙總|專案|報告/.test(text) ? '01_Projects' : '02_Areas';
       }
 
-      if (/專案|完成|截止|提報|下週|月底前|之前要/.test(text)) {
+      if (/專案|完成|截止|提報|下週|這週|下禮拜|這禮拜|月底前|之前要/.test(text)) {
         para = '01_Projects';
         type = '待辦任務';
       } else if (/提醒我|記一下|待辦|記得要|別忘了|確認|核對/.test(text)) {
@@ -874,15 +967,35 @@
         return dt.toISOString().slice(0, 10);
       };
 
-      if (/今天|今日/.test(text)) dueDate = addDays(0);
-      else if (/明天|明日/.test(text)) dueDate = addDays(1);
-      else if (/後天/.test(text)) dueDate = addDays(2);
-      else if (/下週五|下禮拜五/.test(text)) dueDate = addDays(7);
-      else if (/下週|下禮拜/.test(text)) dueDate = addDays(5);
-      else {
-        const mdMatch = text.match(/(\d{1,2})月(\d{1,2})[日號]/);
+      const weekdayMap = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7, '天': 7 };
+      const wkMatch = text.match(/(這|本|下)(?:週|禮拜|星期)([一二三四五六日天])/);
+
+      if (/今天|今日/.test(text)) {
+        dueDate = addDays(0);
+      } else if (/明天|明日/.test(text)) {
+        dueDate = addDays(1);
+      } else if (/大後天/.test(text)) {
+        dueDate = addDays(3);
+      } else if (/後天/.test(text)) {
+        dueDate = addDays(2);
+      } else if (wkMatch) {
+        const isNextWeek = wkMatch[1] === '下';
+        const targetDay = weekdayMap[wkMatch[2]] || 5;
+        const currentDay = now.getDay() === 0 ? 7 : now.getDay();
+        let diff = targetDay - currentDay + (isNextWeek ? 7 : 0);
+        if (!isNextWeek && diff < 0) diff += 7;
+        dueDate = addDays(diff);
+      } else if (/月底/.test(text)) {
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        dueDate = lastDay.toISOString().slice(0, 10);
+      } else {
+        const mdMatch = text.match(/([0-9一二三四五六七八九十]{1,3})月([0-9一二三四五六七八九十]{1,3})[日號]/);
         if (mdMatch) {
-          dueDate = `${now.getFullYear()}-${String(mdMatch[1]).padStart(2, '0')}-${String(mdMatch[2]).padStart(2, '0')}`;
+          const m = parseChineseSmallInt(mdMatch[1]);
+          const d = parseChineseSmallInt(mdMatch[2]);
+          if (m && d && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+            dueDate = `${now.getFullYear()}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          }
         }
       }
 
@@ -907,7 +1020,7 @@
       domainEl.value = parsed.domain;
       typeEl.value = parsed.type;
       titleEl.value = parsed.title;
-      if (parsed.dueDate) dueEl.value = parsed.dueDate;
+      dueEl.value = parsed.dueDate || '';
       contentEl.value = parsed.content;
 
       [paraEl, domainEl, typeEl, titleEl, contentEl].forEach((el) => {
@@ -924,7 +1037,7 @@
         return;
       }
       applyParsedToForm(parseSpokenSecondBrain(raw));
-      showToast('✨ 已自動拆解 PARA 分類、領域與主旨！');
+      showToast('✨ 已自動拆解 PARA 分類、領域與口語日期！');
     });
 
     document.getElementById('trySampleVoiceBtn').addEventListener('click', () => {
@@ -933,6 +1046,27 @@
       document.getElementById('spokenRawInput').value = sample;
       applyParsedToForm(parseSpokenSecondBrain(sample));
       showToast('✨ 已載入語音範例並完成智慧拆解');
+    });
+
+    // Auto-save preference after voice recognition
+    const autoSaveVoiceCb = document.getElementById('autoSaveAfterVoiceCheckbox');
+    autoSaveVoiceCb.checked = localStorage.getItem(AUTO_SAVE_VOICE_KEY) === '1';
+    autoSaveVoiceCb.addEventListener('change', () => {
+      localStorage.setItem(AUTO_SAVE_VOICE_KEY, autoSaveVoiceCb.checked ? '1' : '0');
+    });
+
+    document.getElementById('quickSaveUnderMicBtn').addEventListener('click', () => {
+      const raw = document.getElementById('spokenRawInput').value.trim();
+      if (raw && !document.getElementById('noteTitleInput').value.trim()) {
+        applyParsedToForm(parseSpokenSecondBrain(raw));
+      }
+      document.getElementById('noteForm').requestSubmit();
+    });
+
+    document.getElementById('quickClearUnderMicBtn').addEventListener('click', () => {
+      resetNoteForm();
+      voiceStatusText.textContent = '已清空欄位，請點擊麥克風重新說話';
+      showToast('🔄 已清空輸入欄位');
     });
 
     // Continuous Microphone Speech Recognition
@@ -955,8 +1089,13 @@
         const finalSentence = accumulatedTranscript.trim();
         document.getElementById('spokenRawInput').value = finalSentence;
         applyParsedToForm(parseSpokenSecondBrain(finalSentence));
-        voiceStatusText.textContent = '✅ 語音辨識完成，已自動填入下方欄位！';
-        showToast('🎙️ 語音速記解析完成');
+        if (autoSaveVoiceCb.checked) {
+          document.getElementById('noteForm').requestSubmit();
+          voiceStatusText.textContent = '✅ 語音辨識完成，已自動存入第二大腦！';
+        } else {
+          voiceStatusText.textContent = '✅ 語音辨識完成！可按「立即存入」或微調下方欄位';
+          showToast('🎙️ 語音速記解析完成');
+        }
       } else {
         voiceStatusText.textContent = '準備就緒 — 點擊圓形按鈕開始說話';
       }
@@ -1017,17 +1156,20 @@
       const content = document.getElementById('noteContentInput').value.trim() || title;
       const pinned = document.getElementById('notePinnedCheckbox').checked;
 
-      if (!title) return;
+      if (!title) {
+        showToast('請先說話或輸入筆記主旨');
+        return;
+      }
 
       if (editingId) {
         const target = notes.find((n) => n.id === editingId);
         if (target) {
-          Object.assign(target, { para, domain, type, title, dueDate, content, pinned });
+          Object.assign(target, { para, domain, type, title, dueDate, content, pinned, isSample: false });
           showToast('✏️ 已更新第二大腦筆記');
         }
       } else {
         notes.unshift({
-          id: 'SB-' + Date.now().toString().slice(-5),
+          id: 'SB-' + Date.now().toString().slice(-6),
           createdAt: new Date().toISOString().slice(0, 10),
           dueDate,
           para,
@@ -1037,7 +1179,8 @@
           content,
           done: false,
           pinned,
-          distilled: false
+          distilled: false,
+          isSample: false
         });
         showToast('✅ 已存入第二大腦！');
       }
@@ -1076,7 +1219,7 @@
       const safe = escapeHtml(text);
       if (!enabled) return safe;
       return safe.replace(
-        /(202\d[-\/年]\d{1,2}[-\/月]?\d{0,2}日?|NotebookLM|Google|確認|核對|完成|提報|對帳|備份)/g,
+        /(202\d[-\/年]\d{1,2}[-\/月]?\d{0,2}日?|NotebookLM|Google|確認|核對|完成|提報|對帳|備份|簽呈|細則)/g,
         '<mark class="ai-hl">$1</mark>'
       );
     }
@@ -1096,6 +1239,7 @@
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${pInfo.cls}">${pInfo.label}</span>
                 <span class="text-[11px] font-bold text-[#0F766E] bg-[#ECFDF5] px-2 py-0.5 rounded-md">${escapeHtml(n.domain)}</span>
                 <span class="text-[11px] text-[#8A847C]">${escapeHtml(n.type)}</span>
+                ${n.dueDate ? `<span class="font-num text-[11px] text-[#92400E] font-semibold">📅 ${escapeHtml(n.dueDate)}</span>` : ''}
               </div>
               <p class="text-xs sm:text-sm font-bold text-[#1C1917] ${n.done ? 'line-through opacity-60' : ''}">${escapeHtml(n.title)}</p>
               <p class="text-xs text-[#57534E] truncate mt-0.5">${escapeHtml(n.content)}</p>
@@ -1186,7 +1330,6 @@
       }).join('');
     }
 
-    // Event Delegation for Note Actions (Prevents DOM XSS)
     function handleNoteAction(e) {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -1442,7 +1585,7 @@
       showToast('已重置本週檢視清單');
     });
 
-    // Exports & Imports
+    // Safe Exports & Imports
     function triggerDownload(filename, content, mime) {
       const blob = new Blob([content], { type: mime });
       const url = URL.createObjectURL(blob);
@@ -1456,15 +1599,19 @@
     document.getElementById('exportCsvBtn').addEventListener('click', () => {
       const header = ['紀錄ID', '建立日期', 'PARA分類', '領域標籤', '類型', '主旨', '詳細內容', '狀態', '期限'];
       const rows = notes.map((n) => [
-        n.id, n.createdAt, n.para, n.domain, n.type,
-        `"${String(n.title).replace(/"/g, '""')}"`,
-        `"${String(n.content).replace(/"/g, '""')}"`,
-        n.done ? '已完成' : '進行中',
-        n.dueDate || ''
+        sanitizeCsvCell(n.id),
+        sanitizeCsvCell(n.createdAt),
+        sanitizeCsvCell(n.para),
+        sanitizeCsvCell(n.domain),
+        sanitizeCsvCell(n.type),
+        sanitizeCsvCell(n.title),
+        sanitizeCsvCell(n.content),
+        sanitizeCsvCell(n.done ? '已完成' : '進行中'),
+        sanitizeCsvCell(n.dueDate || '')
       ]);
       const csv = '\uFEFF' + [header.join(','), ...rows.map((r) => r.join(','))].join('\n');
       triggerDownload(`個人第二大腦_${new Date().toISOString().slice(0,10)}.csv`, csv, 'text/csv;charset=utf-8');
-      showToast('📊 已匯出 CSV 檔案');
+      showToast('📊 已匯出防公式注入安全 CSV 檔');
     });
 
     document.getElementById('exportMdBtn').addEventListener('click', () => {
@@ -1493,19 +1640,7 @@
         try {
           const parsed = JSON.parse(reader.result);
           if (Array.isArray(parsed)) {
-            notes = parsed.map((n) => ({
-              id: sanitizeId(n.id) || ('SB-' + Math.random().toString(36).slice(2, 7)),
-              createdAt: String(n.createdAt || ''),
-              dueDate: String(n.dueDate || ''),
-              para: String(n.para || '00_Inbox'),
-              domain: String(n.domain || '#工作管理'),
-              type: String(n.type || '靈感速記'),
-              title: String(n.title || ''),
-              content: String(n.content || ''),
-              done: Boolean(n.done),
-              pinned: Boolean(n.pinned),
-              distilled: Boolean(n.distilled)
-            }));
+            notes = parsed.map(normalizeNote);
             saveNotes();
             renderRecentPreview();
             renderVaultNotes();
@@ -1518,70 +1653,189 @@
       reader.readAsText(file);
     });
 
-    // Secure GAS Template with Secret Token Validation
-    const GAS_TEMPLATE = `// 個人第二大腦_雲端中樞資料庫 安全同步腳本
+    // v2 Two-Way Smart Merge GAS Script Template (Supports Pull + Merge + Portal Sync)
+    const GAS_TEMPLATE = `// 個人第二大腦_雲端中樞資料庫 v2 雙向智慧合併腳本 (防覆蓋保護 + 傳送門同步)
 const SPREADSHEET_ID = '請貼上您的試算表ID';
 const SECRET_TOKEN = '請設定您的自訂安全金鑰';
 
 function doPost(e) {
-  const payload = JSON.parse(e.postData.contents);
+  const payload = JSON.parse(e.postData.contents || '{}');
   if (!payload || payload.token !== SECRET_TOKEN) {
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'Unauthorized' })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: '安全金鑰驗證失敗 (Unauthorized)' }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
+
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('00_語音速記與靈感收件匣') || ss.getSheets()[0];
-  if (Array.isArray(payload.notes)) {
+  const rows = sheet.getDataRange().getValues();
+  const cloudMap = {};
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r[0]) continue;
+    cloudMap[String(r[0])] = {
+      id: String(r[0]),
+      createdAt: String(r[1] || ''),
+      para: String(r[2] || '00_Inbox').split(' ')[0],
+      domain: String(r[3] || '#工作管理'),
+      type: String(r[4] || '靈感速記'),
+      title: String(r[5] || ''),
+      content: String(r[6] || ''),
+      done: String(r[7]) === '已完成',
+      dueDate: String(r[8] || '')
+    };
+  }
+
+  // Smart Merge incoming client notes (skip sample placeholder notes)
+  if (payload.action === 'merge' && Array.isArray(payload.notes)) {
+    payload.notes.forEach(n => {
+      if (n && n.id && !n.isSample) {
+        cloudMap[String(n.id)] = {
+          id: String(n.id),
+          createdAt: String(n.createdAt || ''),
+          para: String(n.para || '00_Inbox').split(' ')[0],
+          domain: String(n.domain || '#工作管理'),
+          type: String(n.type || '靈感速記'),
+          title: String(n.title || ''),
+          content: String(n.content || ''),
+          done: Boolean(n.done),
+          dueDate: String(n.dueDate || '')
+        };
+      }
+    });
+
+    const mergedList = Object.values(cloudMap);
     sheet.clearContents();
     sheet.appendRow(['紀錄ID', '建立日期', 'PARA分類', '領域標籤', '類型', '主旨 / 一句話重點', '完整語音速記與筆記內容', '狀態', '預計行動 / 期限']);
-    payload.notes.forEach(n => {
+    mergedList.forEach(n => {
       sheet.appendRow([n.id, n.createdAt, n.para, n.domain, n.type, n.title, n.content, n.done ? '已完成' : '進行中', n.dueDate || '']);
     });
   }
-  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+
+  // Also read private portal links from Tab 2 (01_PARA全景索引與系統傳送門)
+  const portalSheet = ss.getSheetByName('01_PARA全景索引與系統傳送門');
+  const portals = [];
+  if (portalSheet) {
+    const pRows = portalSheet.getDataRange().getValues();
+    for (let j = 1; j < pRows.length; j++) {
+      if (pRows[j][1] && pRows[j][4] && String(pRows[j][4]).startsWith('http')) {
+        portals.push({
+          id: 'cloud-p-' + j,
+          icon: String(pRows[j][0] || '🔗').slice(0, 2),
+          name: String(pRows[j][1]),
+          desc: String(pRows[j][2] || ''),
+          url: String(pRows[j][4])
+        });
+      }
+    }
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    ok: true,
+    notes: Object.values(cloudMap),
+    portals: portals
+  })).setMimeType(ContentService.MimeType.JSON);
 }`;
 
     document.getElementById('copyGasCodeBtn').addEventListener('click', () => {
       navigator.clipboard.writeText(GAS_TEMPLATE).then(() => {
-        showToast('📋 已複製安全版 GAS 腳本範本');
+        showToast('📋 已複製 v2 雙向智慧合併 GAS 腳本');
       });
     });
 
     const gasInput = document.getElementById('gasWebhookInput');
     const gasTokenInput = document.getElementById('gasTokenInput');
-    gasInput.value = localStorage.getItem(GAS_URL_KEY) || '';
-    gasTokenInput.value = localStorage.getItem(GAS_TOKEN_KEY) || '';
-    gasInput.addEventListener('change', () => localStorage.setItem(GAS_URL_KEY, gasInput.value.trim()));
-    gasTokenInput.addEventListener('change', () => localStorage.setItem(GAS_TOKEN_KEY, gasTokenInput.value.trim()));
+    const rememberTokenCb = document.getElementById('rememberTokenLocalCheckbox');
+    const cloudSyncStatusText = document.getElementById('cloudSyncStatusText');
 
-    document.getElementById('syncToCloudBtn').addEventListener('click', async () => {
+    gasInput.value = localStorage.getItem(GAS_URL_KEY) || '';
+    const savedLocalToken = localStorage.getItem(GAS_TOKEN_KEY);
+    const savedSessionToken = sessionStorage.getItem(GAS_TOKEN_KEY);
+    if (savedLocalToken) {
+      gasTokenInput.value = savedLocalToken;
+      rememberTokenCb.checked = true;
+    } else if (savedSessionToken) {
+      gasTokenInput.value = savedSessionToken;
+    }
+
+    function persistGasCredentials() {
+      const url = gasInput.value.trim();
+      const token = gasTokenInput.value.trim();
+      localStorage.setItem(GAS_URL_KEY, url);
+      sessionStorage.setItem(GAS_TOKEN_KEY, token);
+      if (rememberTokenCb.checked) {
+        localStorage.setItem(GAS_TOKEN_KEY, token);
+      } else {
+        localStorage.removeItem(GAS_TOKEN_KEY);
+      }
+    }
+
+    gasInput.addEventListener('change', persistGasCredentials);
+    gasTokenInput.addEventListener('change', persistGasCredentials);
+    rememberTokenCb.addEventListener('change', persistGasCredentials);
+
+    async function executeCloudAction(actionType) {
       const url = gasInput.value.trim();
       const token = gasTokenInput.value.trim();
       if (!isSafeUrl(url) || !url.startsWith('https://script.google.com/')) {
-        showToast('請先輸入有效的 Google Apps Script https://script.google.com/ 網址');
+        showToast('請先輸入有效的 Google Apps Script 網址');
         return;
       }
-      localStorage.setItem(GAS_URL_KEY, url);
-      localStorage.setItem(GAS_TOKEN_KEY, token);
-      try {
-        showToast('☁️ 正在加密同步至 Google Sheets...');
-        await fetch(url, {
-          method: 'POST',
-          mode: 'no-cors',
-          body: JSON.stringify({ token, notes })
-        });
-        showToast('✅ 已發送安全同步請求！');
-      } catch (e) {
-        showToast('同步發送失敗，請檢查網址');
+      if (!token) {
+        showToast('請輸入您的自訂同步安全金鑰 (Token)');
+        return;
       }
-    });
+      persistGasCredentials();
+      cloudSyncStatusText.textContent = '⏳ 正在與 Google Sheets 雲端中樞安全連線中...';
+
+      try {
+        // Using text/plain avoids CORS preflight failure on Google Apps Script while still returning full JSON response!
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: actionType,
+            token,
+            notes: notes.filter((n) => !n.isSample)
+          })
+        });
+        const data = await res.json();
+        if (!data || !data.ok) {
+          cloudSyncStatusText.textContent = `❌ 同步失敗：${(data && data.error) || '驗證未通過'}`;
+          showToast('同步失敗，請檢查安全金鑰');
+          return;
+        }
+        if (Array.isArray(data.notes) && data.notes.length > 0) {
+          notes = data.notes.map(normalizeNote);
+          saveNotes();
+          renderRecentPreview();
+          renderVaultNotes();
+        }
+        if (Array.isArray(data.portals) && data.portals.length > 0) {
+          portalLinks = data.portals.filter((p) => isSafeUrl(p.url));
+          savePortalLinks();
+          renderPortalLinks();
+        }
+        const nowStr = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+        cloudSyncStatusText.textContent = `✅ 最後成功同步時間：${nowStr}（共 ${notes.length} 則筆記、${portalLinks.length} 個系統傳送門）`;
+        showToast('🎉 雙向雲端同步完成！');
+      } catch (err) {
+        cloudSyncStatusText.textContent = '⚠️ 已發送請求（若腳本尚未更新為 v2，請複製最新腳本重新部署）';
+        showToast('請確認 GAS 腳本已部署為「所有人」可存取');
+      }
+    }
+
+    document.getElementById('syncMergeCloudBtn').addEventListener('click', () => executeCloudAction('merge'));
+    document.getElementById('pullFromCloudBtn').addEventListener('click', () => executeCloudAction('pull'));
 
     document.getElementById('clearAllLocalBtn').addEventListener('click', () => {
-      if (confirm('確定要清除此瀏覽器內所有第二大腦筆記、傳送門捷徑與同步設定嗎？')) {
+      if (confirm('確定要清除此瀏覽器內所有第二大腦筆記、傳送門捷徑與同步金鑰嗎？')) {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(WEEKLY_STORAGE_KEY);
         localStorage.removeItem(PORTAL_STORAGE_KEY);
         localStorage.removeItem(GAS_URL_KEY);
         localStorage.removeItem(GAS_TOKEN_KEY);
+        sessionStorage.removeItem(GAS_TOKEN_KEY);
         location.reload();
       }
     });
