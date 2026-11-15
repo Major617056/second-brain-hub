@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#F5F2EB" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="第二大腦中樞" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="description" content="個人第二大腦中樞 (PARA + CODE)，支援持續語音速記自動分類、自訂系統傳送門與 Google 雲端同步。" />
+  <title>個人第二大腦中樞 — 語音速記・PARA 知識庫・系統傳送門</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='30' fill='%230F766E'/%3E%3Cpath d='M42 40c-9 0-16 7-16 16 0 6 3 11 8 14-1 2-2 5-2 8 0 8 7 14 15 14h8V36h-5c-3 0-6 2-8 4zm36 0c9 0 16 7 16 16 0 6-3 11-8 14 1 2 2 5 2 8 0 8-7 14-15 14h-8V36h5c3 0 6 2 8 4z' fill='none' stroke='white' stroke-width='6' stroke-linejoin='round'/%3E%3Ccircle cx='60' cy='30' r='6' fill='%23FBBF24'/%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    (function() {
+      const manifest = {
+        name: "個人第二大腦中樞",
+        short_name: "第二大腦",
+        start_url: "./",
+        display: "standalone",
+        background_color: "#F5F2EB",
+        theme_color: "#0F766E",
+        icons: [{
+          src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='30' fill='%230F766E'/%3E%3Ccircle cx='60' cy='60' r='32' fill='none' stroke='white' stroke-width='8'/%3E%3Ccircle cx='60' cy='60' r='10' fill='%23FBBF24'/%3E%3C/svg%3E",
+          sizes: "192x192 512x512",
+          type: "image/svg+xml",
+          purpose: "any maskable"
+        }]
+      };
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+      document.head.appendChild(link);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg-canvas: #F5F2EB;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #FAF8F4;
+      --bg-pill: #EFECE6;
+      --ink-primary: #1C1917;
+      --ink-secondary: #57534E;
+      --ink-muted: #8A847C;
+      --border-soft: #E6E1D8;
+      --border-strong: #D5CFC4;
+      --accent: #0F766E;
+      --accent-hover: #115E59;
+      --accent-soft: #ECFDF5;
+      --danger: #E11D48;
+      --danger-soft: #FFF1F2;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background-color: var(--bg-canvas);
+      background-image:
+        radial-gradient(circle at 12% 0%, rgba(15, 118, 110, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 88% 0%, rgba(217, 119, 6, 0.06) 0%, transparent 40%);
+      color: var(--ink-primary);
+      margin: 0;
+      padding: 0;
+    }
+
+    .font-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .surface-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      box-shadow:
+        0 12px 32px -10px rgba(28, 25, 23, 0.06),
+        0 2px 6px -1px rgba(28, 25, 23, 0.03);
+    }
+
+    .mic-orb {
+      width: 112px;
+      height: 112px;
+      border-radius: 9999px;
+      background: linear-gradient(145deg, #14867D 0%, #0F766E 55%, #0B5C56 100%);
+      color: #FFFFFF;
+      box-shadow:
+        0 14px 28px -6px rgba(15, 118, 110, 0.38),
+        0 0 0 8px rgba(15, 118, 110, 0.10),
+        inset 0 2px 3px rgba(255, 255, 255, 0.32);
+      transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+    }
+
+    .mic-orb:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow:
+        0 18px 32px -6px rgba(15, 118, 110, 0.44),
+        0 0 0 10px rgba(15, 118, 110, 0.13),
+        inset 0 2px 3px rgba(255, 255, 255, 0.38);
+    }
+
+    .mic-orb:active {
+      transform: translateY(1px) scale(0.96);
+    }
+
+    .mic-orb.recording-state {
+      background: linear-gradient(145deg, #F43F5E 0%, #E11D48 60%, #BE123C 100%);
+      box-shadow:
+        0 14px 28px -6px rgba(225, 29, 72, 0.42),
+        0 0 0 10px rgba(225, 29, 72, 0.16),
+        inset 0 2px 3px rgba(255, 255, 255, 0.35);
+      animation: orbPulse 1.6s infinite ease-in-out;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { box-shadow: 0 14px 28px -6px rgba(225, 29, 72, 0.42), 0 0 0 8px rgba(225, 29, 72, 0.14); }
+      50% { box-shadow: 0 18px 34px -4px rgba(225, 29, 72, 0.55), 0 0 0 16px rgba(225, 29, 72, 0.06); }
+    }
+
+    .field-input {
+      background: #FAF8F4;
+      border: 1.5px solid #E6E1D8;
+      color: #1C1917;
+      transition: all 0.18s ease;
+    }
+
+    .field-input:focus {
+      background: #FFFFFF;
+      border-color: #0F766E;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+      outline: none;
+    }
+
+    .field-highlight {
+      animation: fieldFlash 0.9s ease;
+    }
+
+    @keyframes fieldFlash {
+      0% { background-color: #D1FAE5; border-color: #0F766E; }
+      100% { background-color: #FAF8F4; border-color: #E6E1D8; }
+    }
+
+    .para-badge-00 { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+    .para-badge-01 { background: #CCFBF1; color: #115E59; border: 1px solid #99F6E4; }
+    .para-badge-02 { background: #DBEAFE; color: #1E40AF; border: 1px solid #BFDBFE; }
+    .para-badge-03 { background: #F3E8FF; color: #6B21A8; border: 1px solid #E9D5FF; }
+    .para-badge-04 { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
+
+    mark.ai-hl {
+      background: #FEF08A;
+      color: #1C1917;
+      padding: 0 3px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="pb-24">
+
+  <!-- Top Header & Navigation -->
+  <header class="sticky top-0 z-30 bg-[#F5F2EB]/95 backdrop-blur-md border-b border-[#E6E1D8]">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-[#0F766E] text-white flex items-center justify-center shadow-sm font-bold text-lg">
+            🧠
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-bold tracking-tight text-[#1C1917]">個人第二大腦中樞</h1>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#0F766E] border border-[#A7F3D0]">PARA + CODE</span>
+            </div>
+            <p class="text-xs text-[#57534E]">語音速記・四大領域管理・純前端隱私保護架構</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="grid grid-cols-4 gap-1 bg-[#EFECE6] p-1 rounded-xl border border-[#E6E1D8]" aria-label="主要功能切換">
+        <button type="button" id="tabBtnCapture" data-tab="capture" class="tab-btn px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-[#0F766E] shadow-sm">
+          🎙️ 語音速記
+        </button>
+        <button type="button" id="tabBtnVault" data-tab="vault" class="tab-btn px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-[#57534E] hover:text-[#1C1917]">
+          🗂️ 知識庫 <span id="navNoteCount" class="font-num ml-0.5 px-1.5 py-0.2 rounded-full bg-[#ECFDF5] text-[#0F766E] text-[11px]">3</span>
+        </button>
+        <button type="button" id="tabBtnPortal" data-tab="portal" class="tab-btn px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-[#57534E] hover:text-[#1C1917]">
+          🚀 系統傳送門
+        </button>
+        <button type="button" id="tabBtnSync" data-tab="sync" class="tab-btn px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-[#57534E] hover:text-[#1C1917]">
+          ☁️ 檢視與同步
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-4 space-y-5">
+
+    <!-- ==========================================
+         TAB 1: 🎙️ 語音速記與靈感捕捉 (CAPTURE)
+         ========================================== -->
+    <section id="panelCapture" class="space-y-4">
+
+      <!-- Quick Status Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <button type="button" data-open-para="00_Inbox" class="quick-para-card surface-card rounded-xl p-3 text-left hover:border-[#0F766E] transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-[#92400E]">📥 00_收件匣</span>
+            <span class="text-[11px] text-[#8A847C]">待整理</span>
+          </div>
+          <p id="statInboxCount" class="font-num text-xl font-bold text-[#1C1917] mt-1">0</p>
+        </button>
+        <button type="button" data-open-para="01_Projects" class="quick-para-card surface-card rounded-xl p-3 text-left hover:border-[#0F766E] transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-[#0F766E]">🎯 01_進行中專案</span>
+            <span class="text-[11px] text-[#8A847C]">短期目標</span>
+          </div>
+          <p id="statProjectCount" class="font-num text-xl font-bold text-[#1C1917] mt-1">0</p>
+        </button>
+        <button type="button" data-open-para="02_Areas" class="quick-para-card surface-card rounded-xl p-3 text-left hover:border-[#0F766E] transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-[#1E40AF]">🛡️ 02_長期領域</span>
+            <span class="text-[11px] text-[#8A847C]">工作/課務/理財</span>
+          </div>
+          <p id="statAreaCount" class="font-num text-xl font-bold text-[#1C1917] mt-1">0</p>
+        </button>
+        <button type="button" data-open-para="03_Resources" class="quick-para-card surface-card rounded-xl p-3 text-left hover:border-[#0F766E] transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-[#6B21A8]">📚 03_知識資源</span>
+            <span class="text-[11px] text-[#8A847C]">學習/研究/AI</span>
+          </div>
+          <p id="statResourceCount" class="font-num text-xl font-bold text-[#1C1917] mt-1">0</p>
+        </button>
+      </div>
+
+      <!-- Large Tactile Voice Capture Card -->
+      <div class="surface-card rounded-2xl p-5 sm:p-6">
+        <div class="flex flex-col items-center text-center">
+          <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-[#ECFDF5] text-[#0F766E] border border-[#A7F3D0]">
+            CODE 第一步：5 秒無腦語音捕捉 (Capture)
+          </span>
+          <h2 class="text-base sm:text-lg font-bold text-[#1C1917] mt-2">
+            點擊麥克風說出想法、待辦、會議備忘或學習心得
+          </h2>
+          <p class="text-xs text-[#57534E] max-w-lg mt-0.5">
+            支援持續聆聽（講完停頓 3 秒或再按一下結束），系統會自動判斷 <strong class="text-[#0F766E]">PARA 分類</strong>、<strong class="text-[#0F766E]">領域標籤</strong> 與 <strong class="text-[#0F766E]">目標日期</strong>，所有資料僅保存在您的裝置瀏覽器中。
+          </p>
+
+          <!-- Big Circular Mic Button -->
+          <div class="my-5 flex flex-col items-center">
+            <button type="button" id="voiceCaptureBtn" class="mic-orb" aria-label="啟動或停止語音速記">
+              <svg id="micIcon" class="w-10 h-10 mb-1" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 10v2a7 7 0 01-14 0v-2M12 19v4m-4 0h8" />
+              </svg>
+              <span id="micBtnLabel" class="text-xs font-bold tracking-wide">點擊開始說話</span>
+            </button>
+            <p id="voiceStatusText" class="text-xs font-semibold text-[#57534E] mt-3 min-h-[18px]">
+              準備就緒 — 可直接說：「記一下下週五前要完成專案進度報告」
+            </p>
+          </div>
+
+          <!-- Live Transcript Box & Demo Trigger -->
+          <div class="w-full max-w-xl bg-[#FAF8F4] border border-[#E6E1D8] rounded-xl p-3 text-left">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-xs font-bold text-[#57534E]">🗣️ 語音原句 / 智慧拆解輸入區</span>
+              <button type="button" id="trySampleVoiceBtn" class="text-xs font-bold text-[#0F766E] hover:underline">
+                ✨ 填入語音範例測試拆解
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <input id="spokenRawInput" type="text" placeholder="說話後自動顯示於此，也可直接貼上或輸入整句話按「智慧解析」..." class="field-input w-full rounded-lg px-3 py-2 text-xs sm:text-sm" />
+              <button type="button" id="parseRawBtn" class="shrink-0 px-3 py-2 rounded-lg bg-[#0F766E] hover:bg-[#115E59] text-white text-xs font-bold transition-all">
+                智慧解析
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Structured Note Form -->
+        <form id="noteForm" class="mt-5 pt-5 border-t border-[#E6E1D8] space-y-3.5">
+          <input type="hidden" id="editingNoteId" value="" />
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label for="paraSelect" class="block text-xs font-bold text-[#57534E] mb-1">PARA 歸檔分類</label>
+              <select id="paraSelect" class="field-input w-full rounded-xl px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                <option value="00_Inbox">📥 00_Inbox 收件匣 (暫存待理)</option>
+                <option value="01_Projects">🎯 01_Projects 進行中專案 (短期目標)</option>
+                <option value="02_Areas">🛡️ 02_Areas 長期責任領域 (日常營運)</option>
+                <option value="03_Resources">📚 03_Resources 知識與興趣資源</option>
+                <option value="04_Archive">🗄️ 04_Archive 歷史封存</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="domainSelect" class="block text-xs font-bold text-[#57534E] mb-1">專屬領域標籤</label>
+              <select id="domainSelect" class="field-input w-full rounded-xl px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                <option value="#工作管理">#工作管理 (公文/規章/專案)</option>
+                <option value="#課程營運">#課程營運 (課務/場地/學員)</option>
+                <option value="#國學研究">#國學研究 (易經/經典/札記)</option>
+                <option value="#健康養生">#健康養生 (太極/調理/運動)</option>
+                <option value="#理財記帳">#理財記帳 (刷卡對帳/投資)</option>
+                <option value="#家庭生活">#家庭生活 (行程/證件/備忘)</option>
+                <option value="#AI創客">#AI創客 (Web App/提示詞/工具)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="noteTypeSelect" class="block text-xs font-bold text-[#57534E] mb-1">資訊性質</label>
+              <select id="noteTypeSelect" class="field-input w-full rounded-xl px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                <option value="待辦任務">✅ 待辦任務 (需執行)</option>
+                <option value="靈感速記">💡 靈感速記 (想法捕捉)</option>
+                <option value="知識筆記">📖 知識筆記 (長期累積)</option>
+                <option value="規章與會議">📋 規章與會議備忘</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label for="noteTitleInput" class="block text-xs font-bold text-[#57534E] mb-1">一句話主旨 (讓未來的自己與 AI 一眼看懂)</label>
+              <input id="noteTitleInput" type="text" required placeholder="例如：確認本月專案進度與會議追蹤事項" class="field-input w-full rounded-xl px-3.5 py-2.5 text-sm font-semibold" />
+            </div>
+            <div>
+              <label for="noteDueInput" class="block text-xs font-bold text-[#57534E] mb-1">目標日期 / 提醒期限</label>
+              <input id="noteDueInput" type="date" class="field-input font-num w-full rounded-xl px-3 py-2.5 text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label for="noteContentInput" class="block text-xs font-bold text-[#57534E] mb-1">詳細內容 / 關鍵脈絡 / 下一步行動</label>
+            <textarea id="noteContentInput" rows="3" placeholder="記錄細節、相關檔案名稱或下一步行動..." class="field-input w-full rounded-xl px-3.5 py-2.5 text-sm"></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <label class="inline-flex items-center gap-2 text-xs font-semibold text-[#57534E] cursor-pointer select-none">
+              <input id="notePinnedCheckbox" type="checkbox" class="w-4 h-4 accent-[#0F766E] rounded" />
+              <span>⭐ 標記為核心焦點 (置頂顯示)</span>
+            </label>
+
+            <div class="flex items-center gap-2">
+              <button type="button" id="cancelEditNoteBtn" class="hidden px-4 py-2.5 rounded-xl border border-[#D5CFC4] bg-white text-xs font-bold text-[#57534E]">
+                取消編輯
+              </button>
+              <button type="submit" id="submitNoteBtn" class="px-5 py-2.5 rounded-xl bg-[#0F766E] hover:bg-[#115E59] text-white text-xs sm:text-sm font-bold shadow-sm transition-all">
+                ＋ 存入第二大腦
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Recent 3 Notes Preview on Capture Tab -->
+      <div class="surface-card rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-[#1C1917]">⚡ 最近捕捉的筆記與待辦</h3>
+          <button type="button" id="gotoVaultBtn" class="text-xs font-bold text-[#0F766E] hover:underline">
+            查看全部知識庫 →
+          </button>
+        </div>
+        <div id="recentNotesPreview" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 2: 🗂️ PARA 知識庫與筆記檢索 (VAULT)
+         ========================================== -->
+    <section id="panelVault" class="hidden space-y-4">
+      <div class="surface-card rounded-2xl p-4 sm:p-5 space-y-3.5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-bold text-[#1C1917]">🗂️ PARA 知識庫與行動清單</h2>
+            <p class="text-xs text-[#57534E]">依行動導向檢索筆記，點擊「✨ 提煉重點」可自動高亮關鍵資訊</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F766E] bg-[#ECFDF5] px-3 py-1.5 rounded-lg border border-[#A7F3D0] cursor-pointer">
+              <input type="checkbox" id="filterOnlyTodo" class="accent-[#0F766E]" />
+              <span>只看未完成待辦</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- PARA Filter Pills -->
+        <div class="flex flex-wrap gap-1.5" id="paraFilterBar">
+          <button type="button" data-para="ALL" class="para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0F766E] text-white">全部</button>
+          <button type="button" data-para="00_Inbox" class="para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#EFECE6] text-[#57534E]">📥 00_收件匣</button>
+          <button type="button" data-para="01_Projects" class="para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#EFECE6] text-[#57534E]">🎯 01_專案</button>
+          <button type="button" data-para="02_Areas" class="para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#EFECE6] text-[#57534E]">🛡️ 02_領域</button>
+          <button type="button" data-para="03_Resources" class="para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#EFECE6] text-[#57534E]">📚 03_資源</button>
+          <button type="button" data-para="04_Archive" class="para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#EFECE6] text-[#57534E]">🗄️ 04_封存</button>
+        </div>
+
+        <!-- Search & Domain Filter -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div class="sm:col-span-2">
+            <input id="searchVaultInput" type="search" placeholder="🔍 搜尋關鍵字..." class="field-input w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm" />
+          </div>
+          <div>
+            <select id="filterDomainSelect" class="field-input w-full rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold">
+              <option value="ALL">所有領域標籤</option>
+              <option value="#工作管理">#工作管理</option>
+              <option value="#課程營運">#課程營運</option>
+              <option value="#國學研究">#國學研究</option>
+              <option value="#健康養生">#健康養生</option>
+              <option value="#理財記帳">#理財記帳</option>
+              <option value="#家庭生活">#家庭生活</option>
+              <option value="#AI創客">#AI創客</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vault Notes List -->
+      <div id="vaultNotesContainer" class="space-y-3"></div>
+    </section>
+
+    <!-- ==========================================
+         TAB 3: 🚀 自訂個人系統傳送門 (PORTAL - 零個資公開版)
+         ========================================== -->
+    <section id="panelPortal" class="hidden space-y-5">
+
+      <!-- Security Notice -->
+      <div class="p-4 rounded-2xl bg-[#ECFDF5] border border-[#A7F3D0] flex items-start gap-3">
+        <span class="text-xl">🔒</span>
+        <div class="text-xs space-y-1">
+          <p class="font-bold text-[#0F766E]">資安強化架構：您的私人連結僅存於本機瀏覽器</p>
+          <p class="text-[#57534E]">為確保公開部署在 GitHub Pages 時不外洩任何個人雲端檔案 ID、試算表或內部文件名稱，本頁面原始碼完全不含任何私人資料。您可以匯入我們為您準備好的私人設定檔（存放於您的 Google Drive），或自行新增常用連結。</p>
+        </div>
+      </div>
+
+      <!-- Custom Portal Links -->
+      <div class="surface-card rounded-2xl p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#1C1917]">🚀 個人數位系統與雲端捷徑傳送門</h2>
+            <p class="text-xs text-[#57534E]">匯入或新增您的 Google Drive、Sheets、記帳系統與行事曆連結（僅存於本機）</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <label class="px-3 py-1.5 rounded-xl bg-[#0F766E] text-white text-xs font-bold cursor-pointer hover:bg-[#115E59]">
+              📥 匯入私人連結設定檔 (.json)
+              <input type="file" id="importPortalJsonInput" accept=".json" class="hidden" />
+            </label>
+            <button type="button" id="exportPortalJsonBtn" class="px-3 py-1.5 rounded-xl bg-white border border-[#D5CFC4] text-[#1C1917] text-xs font-bold hover:border-[#0F766E]">
+              📤 匯出連結設定
+            </button>
+          </div>
+        </div>
+
+        <div id="portalLinksGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+        <!-- Add Custom Portal Link Form -->
+        <form id="addPortalForm" class="pt-4 border-t border-[#E6E1D8] grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+          <input id="portalNameInput" type="text" required placeholder="系統名稱 (如：雲端中樞資料庫)" class="field-input rounded-xl px-3 py-2 text-xs" />
+          <input id="portalDescInput" type="text" placeholder="簡短說明 (選填)" class="field-input rounded-xl px-3 py-2 text-xs" />
+          <input id="portalUrlInput" type="url" required placeholder="https://..." class="field-input rounded-xl px-3 py-2 text-xs" />
+          <button type="submit" class="px-4 py-2 rounded-xl bg-[#0F766E] text-white text-xs font-bold hover:bg-[#115E59]">
+            ＋ 新增傳送門捷徑
+          </button>
+        </form>
+      </div>
+
+      <!-- NotebookLM Guide -->
+      <div class="surface-card rounded-2xl p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm sm:text-base font-bold text-[#1C1917]">🤖 第三層 AI 智庫：搭配 Google NotebookLM</h3>
+          <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#ECFDF5] text-[#0F766E] border border-[#A7F3D0]">開啟 NotebookLM ↗</a>
+        </div>
+        <p class="text-xs text-[#57534E]">將您的規章細則、研究資料 PDF 或 Google Docs 掛載至 NotebookLM，即可建立附帶原文引用的專屬 AI 問答知識庫。</p>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 4: ☁️ 每週檢視與雲端同步 (SYNC & REVIEW)
+         ========================================== -->
+    <section id="panelSync" class="hidden space-y-5">
+
+      <!-- Interactive Weekly Review Checklist -->
+      <div class="surface-card rounded-2xl p-5 space-y-3.5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E]">每週日晚上 10 分鐘習慣</span>
+            <h2 class="text-base font-bold text-[#1C1917] mt-1">🧹 第二大腦每週清倉檢視清單 (Weekly Review)</h2>
+          </div>
+          <button type="button" id="resetWeeklyReviewBtn" class="text-xs font-bold px-3 py-1.5 rounded-lg border border-[#D5CFC4] bg-white text-[#57534E] hover:text-[#1C1917]">
+            重置本週進度
+          </button>
+        </div>
+
+        <div id="weeklyReviewList" class="space-y-2 text-xs sm:text-sm"></div>
+        <p id="weeklyReviewStatus" class="text-xs font-semibold text-[#0F766E]"></p>
+      </div>
+
+      <!-- Export / Import & Cloud Sync -->
+      <div class="surface-card rounded-2xl p-5 space-y-4">
+        <div>
+          <h2 class="text-base font-bold text-[#1C1917]">☁️ 資料匯出、備份與 Google 雲端試算表同步</h2>
+          <p class="text-xs text-[#57534E]">您的筆記僅保存在瀏覽器本機，可隨時匯出為 CSV、Markdown、JSON 或透過加密金鑰同步至個人試算表</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2.5">
+          <button type="button" id="exportCsvBtn" class="px-4 py-2.5 rounded-xl bg-[#0F766E] text-white text-xs font-bold shadow-sm hover:bg-[#115E59]">
+            📊 匯出 CSV (Excel / Google Sheets)
+          </button>
+          <button type="button" id="exportMdBtn" class="px-4 py-2.5 rounded-xl bg-white border border-[#D5CFC4] text-[#1C1917] text-xs font-bold hover:border-[#0F766E]">
+            📝 匯出 Markdown (NotebookLM / Obsidian 相容)
+          </button>
+          <button type="button" id="exportJsonBtn" class="px-4 py-2.5 rounded-xl bg-white border border-[#D5CFC4] text-[#1C1917] text-xs font-bold hover:border-[#0F766E]">
+            📦 匯出 JSON 完整備份
+          </button>
+          <label class="px-4 py-2.5 rounded-xl bg-[#FAF8F4] border border-[#D5CFC4] text-[#1C1917] text-xs font-bold cursor-pointer hover:border-[#0F766E]">
+            📂 匯入 JSON 備份檔
+            <input type="file" id="importJsonInput" accept=".json" class="hidden" />
+          </label>
+        </div>
+
+        <!-- GAS Webhook Sync with Secret Token -->
+        <div class="pt-4 border-t border-[#E6E1D8] space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-[#1C1917]">🔗 Google Apps Script 雲端試算表安全同步</h3>
+              <p class="text-xs text-[#57534E]">腳本加入自訂安全金鑰 (Secret Token) 驗證，防止未經授權的寫入請求</p>
+            </div>
+            <button type="button" id="copyGasCodeBtn" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#ECFDF5] text-[#0F766E] border border-[#A7F3D0]">
+              📋 複製安全版 GAS 腳本範本
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <input id="gasWebhookInput" type="url" placeholder="GAS 網頁應用程式網址 (https://script.google.com/macros/s/.../exec)" class="field-input sm:col-span-2 rounded-xl px-3.5 py-2 text-xs" />
+            <input id="gasTokenInput" type="password" placeholder="自訂同步安全金鑰 (Token)" class="field-input rounded-xl px-3.5 py-2 text-xs" />
+          </div>
+          <button type="button" id="syncToCloudBtn" class="px-4 py-2 rounded-xl bg-[#0F766E] text-white text-xs font-bold">
+            ☁️ 立即加密同步至雲端試算表
+          </button>
+        </div>
+
+        <!-- Clear Local Data -->
+        <div class="pt-4 border-t border-[#E6E1D8] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <p class="text-xs text-[#57534E]">若在公用電腦使用完畢，可立即清除此瀏覽器內所有快取筆記與設定連結。</p>
+          <button type="button" id="clearAllLocalBtn" class="px-3.5 py-2 rounded-xl bg-[#FFF1F2] border border-[#FECDD3] text-[#E11D48] text-xs font-bold shrink-0">
+            🗑️ 清除本機所有資料
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="surface-card rounded-2xl max-w-sm w-full p-5 space-y-4">
+      <div class="flex items-center gap-2.5 text-[#E11D48]">
+        <span class="text-xl">⚠️</span>
+        <h3 class="text-base font-bold">確認刪除這則第二大腦筆記？</h3>
+      </div>
+      <div id="deleteModalPreview" class="p-3 rounded-xl bg-[#FAF8F4] border border-[#E6E1D8] space-y-1"></div>
+      <p class="text-xs text-[#57534E]">刪除後底部仍會提供 10 秒「復原刪除 (Undo)」按鈕防止誤刪。</p>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="cancelDeleteModalBtn" class="px-4 py-2 rounded-xl border border-[#D5CFC4] bg-white text-xs font-bold text-[#57534E]">取消</button>
+        <button type="button" id="confirmDeleteModalBtn" class="px-4 py-2 rounded-xl bg-[#E11D48] text-white text-xs font-bold">確認刪除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10-Second Undo Delete Bar -->
+  <div id="undoDeleteBar" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-md w-[92%] bg-[#1C1917] text-white px-4 py-3 rounded-2xl shadow-xl flex items-center justify-between gap-3">
+    <span id="undoDeleteText" class="text-xs font-medium truncate">已刪除筆記</span>
+    <div class="flex items-center gap-2 shrink-0">
+      <button type="button" id="undoDeleteBtn" class="px-3 py-1 rounded-lg bg-[#FBBF24] text-[#1C1917] text-xs font-bold">↩ 復原刪除 (10s)</button>
+      <button type="button" id="dismissUndoBtn" class="text-xs text-[#A8A29E] px-1">✕</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBanner" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#1C1917] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg"></div>
+
+  <script>
+    const STORAGE_KEY = 'second_brain_notes_secure_v1';
+    const WEEKLY_STORAGE_KEY = 'second_brain_weekly_secure_v1';
+    const PORTAL_STORAGE_KEY = 'second_brain_portal_secure_v1';
+    const GAS_URL_KEY = 'second_brain_gas_url_v1';
+    const GAS_TOKEN_KEY = 'second_brain_gas_token_v1';
+
+    const INITIAL_NOTES = [
+      {
+        id: 'SB-001',
+        createdAt: '2026-11-15',
+        dueDate: '2026-11-20',
+        para: '01_Projects',
+        domain: '#工作管理',
+        type: '待辦任務',
+        title: '範例：追蹤本週重點專案進度與文件審查',
+        content: '此為示範筆記。您可以點擊上方麥克風進行語音速記，或點擊「匯入 JSON 備份檔」載入您的個人資料。',
+        done: false,
+        pinned: true,
+        distilled: false
+      },
+      {
+        id: 'SB-002',
+        createdAt: '2026-11-15',
+        dueDate: '',
+        para: '02_Areas',
+        domain: '#理財記帳',
+        type: '待辦任務',
+        title: '範例：每月信用卡對帳與雲端備份檢查',
+        content: '定期透過語音記帳系統核對本月消費明細並檢查自動備份狀態。',
+        done: false,
+        pinned: false,
+        distilled: false
+      },
+      {
+        id: 'SB-003',
+        createdAt: '2026-11-15',
+        dueDate: '',
+        para: '03_Resources',
+        domain: '#AI創客',
+        type: '知識筆記',
+        title: '範例：用 NotebookLM 建立專屬規章與研究 AI 智庫',
+        content: '將常用的參考文件 PDF 或 Google Docs 匯入 NotebookLM，方便快速提問與交叉比對。',
+        done: false,
+        pinned: false,
+        distilled: true
+      }
+    ];
+
+    const DEFAULT_PORTAL_LINKS = [
+      {
+        id: 'p-1',
+        icon: '💳',
+        name: '語音刷卡記帳 Web App',
+        desc: '線上版語音記帳與信用卡對帳系統',
+        url: 'https://major617056.github.io/voice-card-expense-tracker/'
+      },
+      {
+        id: 'p-2',
+        icon: '📅',
+        name: 'Google 行事曆',
+        desc: '查看每日行程、休假排班與重要提醒',
+        url: 'https://calendar.google.com/'
+      },
+      {
+        id: 'p-3',
+        icon: '📁',
+        name: 'Google 雲端硬碟',
+        desc: '開啟您的 PARA 雲端資料夾與試算表',
+        url: 'https://drive.google.com/'
+      },
+      {
+        id: 'p-4',
+        icon: '🤖',
+        name: 'Google NotebookLM',
+        desc: '私人 AI 文件知識庫與智慧問答',
+        url: 'https://notebooklm.google.com/'
+      }
+    ];
+
+    const SAMPLE_VOICE_SENTENCES = [
+      '記一下工作專案下週五前要完成季度簡報與進度彙總',
+      '提醒我明天確認課程學員名單與本月收費狀態',
+      '研究筆記：將經典閱讀心得與實務案例整理進雲端資料庫',
+      '養生心得：運動前先進行熱身與局部溫敷調理效果更好',
+      '理財備忘：月底前檢查信用卡自動對帳與雲端備份檔案'
+    ];
+
+    const WEEKLY_STEPS = [
+      { id: 'w1', code: 'Capture 捕捉清倉', text: '檢查手機【第二大腦中樞】與雲端 00_Inbox_收件匣 的語音速記與暫存檔' },
+      { id: 'w2', code: 'Organize 專案盤點', text: '將收件匣中需在 3 個月內完成的任務移入 01_Projects 並設定目標日期' },
+      { id: 'w3', code: 'Organize 領域歸檔', text: '將日常營運、理財與課務歸入 02_Areas；將長期研究與學習筆記歸入 03_Resources' },
+      { id: 'w4', code: 'Archive 斷捨離封存', text: '將 01_Projects 已結案的專案移入 04_Archive_歷史封存，保持桌面清爽' },
+      { id: 'w5', code: 'Express 下週對齊', text: '對照 Google 行事曆下週行程與會議，勾選 ⭐ 核心焦點任務' }
+    ];
+
+    let notes = [];
+    let portalLinks = [];
+    let activeParaFilter = 'ALL';
+    let sampleIdx = 0;
+
+    function isSafeUrl(urlStr) {
+      try {
+        const u = new URL(String(urlStr || '').trim());
+        return u.protocol === 'https:' || u.protocol === 'http:';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function sanitizeId(rawId) {
+      return String(rawId || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    }
+
+    function loadNotes() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            notes = parsed.map((n) => ({
+              id: sanitizeId(n.id) || ('SB-' + Math.random().toString(36).slice(2, 7)),
+              createdAt: String(n.createdAt || ''),
+              dueDate: String(n.dueDate || ''),
+              para: String(n.para || '00_Inbox'),
+              domain: String(n.domain || '#工作管理'),
+              type: String(n.type || '靈感速記'),
+              title: String(n.title || ''),
+              content: String(n.content || ''),
+              done: Boolean(n.done),
+              pinned: Boolean(n.pinned),
+              distilled: Boolean(n.distilled)
+            }));
+            return;
+          }
+        }
+      } catch (e) {}
+      notes = [...INITIAL_NOTES];
+      saveNotes();
+    }
+
+    function saveNotes() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      } catch (e) {}
+      updateStats();
+    }
+
+    function loadPortalLinks() {
+      try {
+        const raw = localStorage.getItem(PORTAL_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            portalLinks = parsed.filter((item) => isSafeUrl(item.url)).map((item) => ({
+              id: sanitizeId(item.id) || ('p-' + Math.random().toString(36).slice(2, 7)),
+              icon: String(item.icon || '🔗').slice(0, 4),
+              name: String(item.name || '未命名連結'),
+              desc: String(item.desc || ''),
+              url: String(item.url)
+            }));
+            return;
+          }
+        }
+      } catch (e) {}
+      portalLinks = [...DEFAULT_PORTAL_LINKS];
+      savePortalLinks();
+    }
+
+    function savePortalLinks() {
+      try {
+        localStorage.setItem(PORTAL_STORAGE_KEY, JSON.stringify(portalLinks));
+      } catch (e) {}
+    }
+
+    function showToast(msg) {
+      const banner = document.getElementById('toastBanner');
+      banner.textContent = msg;
+      banner.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => banner.classList.add('hidden'), 2800);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function switchTab(tab) {
+      const panels = ['capture', 'vault', 'portal', 'sync'];
+      panels.forEach((p) => {
+        const panelEl = document.getElementById('panel' + p.charAt(0).toUpperCase() + p.slice(1));
+        const btnEl = document.getElementById('tabBtn' + p.charAt(0).toUpperCase() + p.slice(1));
+        if (p === tab) {
+          panelEl.classList.remove('hidden');
+          btnEl.className = 'tab-btn px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-[#0F766E] shadow-sm';
+        } else {
+          panelEl.classList.add('hidden');
+          btnEl.className = 'tab-btn px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-[#57534E] hover:text-[#1C1917]';
+        }
+      });
+      if (tab === 'vault') renderVaultNotes();
+      if (tab === 'capture') renderRecentPreview();
+      if (tab === 'portal') renderPortalLinks();
+    }
+
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    document.querySelectorAll('.quick-para-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        activeParaFilter = card.dataset.openPara;
+        updateParaFilterButtons();
+        switchTab('vault');
+      });
+    });
+
+    document.getElementById('gotoVaultBtn').addEventListener('click', () => switchTab('vault'));
+
+    function updateStats() {
+      const countBy = (p) => notes.filter((n) => n.para === p).length;
+      document.getElementById('statInboxCount').textContent = countBy('00_Inbox');
+      document.getElementById('statProjectCount').textContent = countBy('01_Projects');
+      document.getElementById('statAreaCount').textContent = countBy('02_Areas');
+      document.getElementById('statResourceCount').textContent = countBy('03_Resources');
+      document.getElementById('navNoteCount').textContent = notes.length;
+    }
+
+    // Smart Spoken Chinese Note Parser
+    function parseSpokenSecondBrain(rawText) {
+      const text = String(rawText || '').trim();
+      if (!text) return null;
+
+      let para = '00_Inbox';
+      let domain = '#工作管理';
+      let type = '靈感速記';
+
+      if (/易經|卜卦|卦象|經典|研究|國學/.test(text)) {
+        domain = '#國學研究';
+        para = '03_Resources';
+        type = '知識筆記';
+      } else if (/課堂|收費|學員|學費|點名|上課|課程/.test(text)) {
+        domain = '#課程營運';
+        para = '02_Areas';
+        type = '待辦任務';
+      } else if (/太極|溫敷|按推|養生|運動|健康|調理/.test(text)) {
+        domain = '#健康養生';
+        para = '03_Resources';
+        type = '知識筆記';
+      } else if (/刷卡|記帳|信用卡|對帳|銀行|理財|投資/.test(text)) {
+        domain = '#理財記帳';
+        para = '02_Areas';
+        type = '待辦任務';
+      } else if (/家人|家庭|醫院|回診|檢查|證件/.test(text)) {
+        domain = '#家庭生活';
+        para = '02_Areas';
+        type = '待辦任務';
+      } else if (/AI|提示詞|網頁|GitHub|NotebookLM|自動備份|程式/.test(text)) {
+        domain = '#AI創客';
+        para = '03_Resources';
+        type = '靈感速記';
+      } else if (/簽呈|細則|人事|會議|簡報|專案|報告/.test(text)) {
+        domain = '#工作管理';
+        para = /簽呈|提報|彙總|專案|報告/.test(text) ? '01_Projects' : '02_Areas';
+      }
+
+      if (/專案|完成|截止|提報|下週|月底前|之前要/.test(text)) {
+        para = '01_Projects';
+        type = '待辦任務';
+      } else if (/提醒我|記一下|待辦|記得要|別忘了|確認|核對/.test(text)) {
+        type = '待辦任務';
+        if (para === '00_Inbox') para = '02_Areas';
+      } else if (/心得|筆記|研究|原則|概念/.test(text)) {
+        type = '知識筆記';
+      }
+
+      const now = new Date();
+      let dueDate = '';
+      const addDays = (d) => {
+        const dt = new Date(now);
+        dt.setDate(dt.getDate() + d);
+        return dt.toISOString().slice(0, 10);
+      };
+
+      if (/今天|今日/.test(text)) dueDate = addDays(0);
+      else if (/明天|明日/.test(text)) dueDate = addDays(1);
+      else if (/後天/.test(text)) dueDate = addDays(2);
+      else if (/下週五|下禮拜五/.test(text)) dueDate = addDays(7);
+      else if (/下週|下禮拜/.test(text)) dueDate = addDays(5);
+      else {
+        const mdMatch = text.match(/(\d{1,2})月(\d{1,2})[日號]/);
+        if (mdMatch) {
+          dueDate = `${now.getFullYear()}-${String(mdMatch[1]).padStart(2, '0')}-${String(mdMatch[2]).padStart(2, '0')}`;
+        }
+      }
+
+      let cleanTitle = text
+        .replace(/^(請幫我|幫我)?(記一下|提醒我|記錄一下|筆記|備忘|工作專案|研究筆記|養生心得|理財備忘)[：:，,、\s]*/i, '')
+        .trim();
+      if (cleanTitle.length > 28) cleanTitle = cleanTitle.slice(0, 28) + '…';
+
+      return { para, domain, type, title: cleanTitle || text, content: text, dueDate };
+    }
+
+    function applyParsedToForm(parsed) {
+      if (!parsed) return;
+      const paraEl = document.getElementById('paraSelect');
+      const domainEl = document.getElementById('domainSelect');
+      const typeEl = document.getElementById('noteTypeSelect');
+      const titleEl = document.getElementById('noteTitleInput');
+      const dueEl = document.getElementById('noteDueInput');
+      const contentEl = document.getElementById('noteContentInput');
+
+      paraEl.value = parsed.para;
+      domainEl.value = parsed.domain;
+      typeEl.value = parsed.type;
+      titleEl.value = parsed.title;
+      if (parsed.dueDate) dueEl.value = parsed.dueDate;
+      contentEl.value = parsed.content;
+
+      [paraEl, domainEl, typeEl, titleEl, contentEl].forEach((el) => {
+        el.classList.remove('field-highlight');
+        void el.offsetWidth;
+        el.classList.add('field-highlight');
+      });
+    }
+
+    document.getElementById('parseRawBtn').addEventListener('click', () => {
+      const raw = document.getElementById('spokenRawInput').value.trim();
+      if (!raw) {
+        showToast('請先說話或輸入一句話再解析');
+        return;
+      }
+      applyParsedToForm(parseSpokenSecondBrain(raw));
+      showToast('✨ 已自動拆解 PARA 分類、領域與主旨！');
+    });
+
+    document.getElementById('trySampleVoiceBtn').addEventListener('click', () => {
+      const sample = SAMPLE_VOICE_SENTENCES[sampleIdx % SAMPLE_VOICE_SENTENCES.length];
+      sampleIdx++;
+      document.getElementById('spokenRawInput').value = sample;
+      applyParsedToForm(parseSpokenSecondBrain(sample));
+      showToast('✨ 已載入語音範例並完成智慧拆解');
+    });
+
+    // Continuous Microphone Speech Recognition
+    const voiceCaptureBtn = document.getElementById('voiceCaptureBtn');
+    const micBtnLabel = document.getElementById('micBtnLabel');
+    const voiceStatusText = document.getElementById('voiceStatusText');
+    let recognition = null;
+    let isListening = false;
+    let silenceTimer = null;
+    let accumulatedTranscript = '';
+    const SILENCE_TIMEOUT_MS = 3000;
+
+    function stopVoiceCapture(finalize = true) {
+      isListening = false;
+      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+      if (recognition) { try { recognition.stop(); } catch (e) {} }
+      voiceCaptureBtn.classList.remove('recording-state');
+      micBtnLabel.textContent = '點擊開始說話';
+      if (finalize && accumulatedTranscript.trim()) {
+        const finalSentence = accumulatedTranscript.trim();
+        document.getElementById('spokenRawInput').value = finalSentence;
+        applyParsedToForm(parseSpokenSecondBrain(finalSentence));
+        voiceStatusText.textContent = '✅ 語音辨識完成，已自動填入下方欄位！';
+        showToast('🎙️ 語音速記解析完成');
+      } else {
+        voiceStatusText.textContent = '準備就緒 — 點擊圓形按鈕開始說話';
+      }
+    }
+
+    voiceCaptureBtn.addEventListener('click', () => {
+      if (isListening) { stopVoiceCapture(true); return; }
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        showToast('此瀏覽器不支援麥克風語音辨識，請使用 Chrome / Safari 或點擊「填入語音範例」');
+        return;
+      }
+
+      accumulatedTranscript = '';
+      recognition = new SpeechRec();
+      recognition.lang = 'zh-TW';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isListening = true;
+        voiceCaptureBtn.classList.add('recording-state');
+        micBtnLabel.textContent = '聆聽中 (點擊結束)';
+        voiceStatusText.textContent = '🔴 正在持續聆聽中⋯⋯講完停頓 3 秒將自動解析';
+      };
+
+      recognition.onresult = (event) => {
+        let interim = '';
+        let finalStr = '';
+        for (let i = 0; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) finalStr += transcript;
+          else interim += transcript;
+        }
+        accumulatedTranscript = (finalStr + interim).trim();
+        if (accumulatedTranscript) {
+          document.getElementById('spokenRawInput').value = accumulatedTranscript;
+          voiceStatusText.textContent = `🗣️ 聽到：「${accumulatedTranscript}」`;
+        }
+        if (silenceTimer) clearTimeout(silenceTimer);
+        silenceTimer = setTimeout(() => { if (isListening) stopVoiceCapture(true); }, SILENCE_TIMEOUT_MS);
+      };
+
+      recognition.onerror = () => stopVoiceCapture(Boolean(accumulatedTranscript));
+      recognition.onend = () => { if (isListening) stopVoiceCapture(true); };
+      try { recognition.start(); } catch (e) { stopVoiceCapture(false); }
+    });
+
+    // Save or Update Note
+    document.getElementById('noteForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const editingId = document.getElementById('editingNoteId').value;
+      const para = document.getElementById('paraSelect').value;
+      const domain = document.getElementById('domainSelect').value;
+      const type = document.getElementById('noteTypeSelect').value;
+      const title = document.getElementById('noteTitleInput').value.trim();
+      const dueDate = document.getElementById('noteDueInput').value;
+      const content = document.getElementById('noteContentInput').value.trim() || title;
+      const pinned = document.getElementById('notePinnedCheckbox').checked;
+
+      if (!title) return;
+
+      if (editingId) {
+        const target = notes.find((n) => n.id === editingId);
+        if (target) {
+          Object.assign(target, { para, domain, type, title, dueDate, content, pinned });
+          showToast('✏️ 已更新第二大腦筆記');
+        }
+      } else {
+        notes.unshift({
+          id: 'SB-' + Date.now().toString().slice(-5),
+          createdAt: new Date().toISOString().slice(0, 10),
+          dueDate,
+          para,
+          domain,
+          type,
+          title,
+          content,
+          done: false,
+          pinned,
+          distilled: false
+        });
+        showToast('✅ 已存入第二大腦！');
+      }
+
+      resetNoteForm();
+      saveNotes();
+      renderRecentPreview();
+      renderVaultNotes();
+    });
+
+    function resetNoteForm() {
+      document.getElementById('editingNoteId').value = '';
+      document.getElementById('noteTitleInput').value = '';
+      document.getElementById('noteContentInput').value = '';
+      document.getElementById('noteDueInput').value = '';
+      document.getElementById('spokenRawInput').value = '';
+      document.getElementById('notePinnedCheckbox').checked = false;
+      document.getElementById('submitNoteBtn').textContent = '＋ 存入第二大腦';
+      document.getElementById('cancelEditNoteBtn').classList.add('hidden');
+    }
+
+    document.getElementById('cancelEditNoteBtn').addEventListener('click', resetNoteForm);
+
+    function paraLabelInfo(code) {
+      const map = {
+        '00_Inbox': { label: '📥 00_收件匣', cls: 'para-badge-00' },
+        '01_Projects': { label: '🎯 01_專案', cls: 'para-badge-01' },
+        '02_Areas': { label: '🛡️ 02_領域', cls: 'para-badge-02' },
+        '03_Resources': { label: '📚 03_資源', cls: 'para-badge-03' },
+        '04_Archive': { label: '🗄️ 04_封存', cls: 'para-badge-04' }
+      };
+      return map[code] || map['00_Inbox'];
+    }
+
+    function highlightKeyPhrases(text, enabled) {
+      const safe = escapeHtml(text);
+      if (!enabled) return safe;
+      return safe.replace(
+        /(202\d[-\/年]\d{1,2}[-\/月]?\d{0,2}日?|NotebookLM|Google|確認|核對|完成|提報|對帳|備份)/g,
+        '<mark class="ai-hl">$1</mark>'
+      );
+    }
+
+    function renderRecentPreview() {
+      const container = document.getElementById('recentNotesPreview');
+      const top3 = [...notes].sort((a, b) => Number(b.pinned) - Number(a.pinned)).slice(0, 3);
+
+      container.innerHTML = top3.map((n) => {
+        const pInfo = paraLabelInfo(n.para);
+        const safeId = escapeHtml(n.id);
+        return `
+          <div class="p-3 rounded-xl bg-[#FAF8F4] border border-[#E6E1D8] flex items-start justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                ${n.pinned ? '<span class="text-xs">⭐</span>' : ''}
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${pInfo.cls}">${pInfo.label}</span>
+                <span class="text-[11px] font-bold text-[#0F766E] bg-[#ECFDF5] px-2 py-0.5 rounded-md">${escapeHtml(n.domain)}</span>
+                <span class="text-[11px] text-[#8A847C]">${escapeHtml(n.type)}</span>
+              </div>
+              <p class="text-xs sm:text-sm font-bold text-[#1C1917] ${n.done ? 'line-through opacity-60' : ''}">${escapeHtml(n.title)}</p>
+              <p class="text-xs text-[#57534E] truncate mt-0.5">${escapeHtml(n.content)}</p>
+            </div>
+            <button type="button" data-action="toggle-done" data-id="${safeId}" class="shrink-0 px-2.5 py-1 rounded-lg border text-xs font-bold ${n.done ? 'bg-[#ECFDF5] text-[#0F766E] border-[#A7F3D0]' : 'bg-white text-[#57534E] border-[#D5CFC4]'}">
+              ${n.done ? '✓ 已完成' : '標記完成'}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderVaultNotes() {
+      const container = document.getElementById('vaultNotesContainer');
+      const q = document.getElementById('searchVaultInput').value.trim().toLowerCase();
+      const domainFilter = document.getElementById('filterDomainSelect').value;
+      const onlyTodo = document.getElementById('filterOnlyTodo').checked;
+
+      const filtered = notes
+        .filter((n) => {
+          if (activeParaFilter !== 'ALL' && n.para !== activeParaFilter) return false;
+          if (domainFilter !== 'ALL' && n.domain !== domainFilter) return false;
+          if (onlyTodo && n.done) return false;
+          if (q && !`${n.title} ${n.content} ${n.domain} ${n.type}`.toLowerCase().includes(q)) return false;
+          return true;
+        })
+        .sort((a, b) => Number(b.pinned) - Number(a.pinned));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="surface-card rounded-2xl p-8 text-center text-xs text-[#57534E]">找不到符合篩選條件的第二大腦筆記。</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map((n) => {
+        const pInfo = paraLabelInfo(n.para);
+        const safeId = escapeHtml(n.id);
+        return `
+          <article class="surface-card rounded-2xl p-4 sm:p-5 space-y-2.5 transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${n.pinned ? '<span title="核心焦點">⭐</span>' : ''}
+                <span class="text-xs font-bold px-2.5 py-0.5 rounded-md ${pInfo.cls}">${pInfo.label}</span>
+                <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#ECFDF5] text-[#0F766E]">${escapeHtml(n.domain)}</span>
+                <span class="text-xs px-2 py-0.5 rounded-md bg-[#EFECE6] text-[#57534E] font-medium">${escapeHtml(n.type)}</span>
+                ${n.dueDate ? `<span class="font-num text-xs px-2 py-0.5 rounded-md bg-[#FEF3C7] text-[#92400E] font-semibold">📅 期限 ${escapeHtml(n.dueDate)}</span>` : ''}
+              </div>
+              <span class="font-num text-[11px] text-[#8A847C]">${safeId} · ${escapeHtml(n.createdAt)}</span>
+            </div>
+
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-[#1C1917] ${n.done ? 'line-through opacity-60' : ''}">
+                ${highlightKeyPhrases(n.title, n.distilled)}
+              </h3>
+              <p class="text-xs sm:text-sm text-[#57534E] mt-1 leading-relaxed">
+                ${highlightKeyPhrases(n.content, n.distilled)}
+              </p>
+            </div>
+
+            <div class="pt-2 border-t border-[#E6E1D8] flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button type="button" data-action="toggle-done" data-id="${safeId}" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${n.done ? 'bg-[#ECFDF5] text-[#0F766E] border-[#A7F3D0]' : 'bg-white text-[#1C1917] border-[#D5CFC4]'}">
+                  ${n.done ? '✓ 已完成' : '☐ 標記完成'}
+                </button>
+                <button type="button" data-action="toggle-distill" data-id="${safeId}" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${n.distilled ? 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]' : 'bg-white text-[#57534E] border-[#D5CFC4]'}">
+                  ✨ ${n.distilled ? '已提煉重點' : '提煉重點'}
+                </button>
+                <select data-action="move-para" data-id="${safeId}" aria-label="快速移轉 PARA 分類" class="text-xs font-semibold px-2 py-1 rounded-lg bg-[#FAF8F4] border border-[#D5CFC4] text-[#57534E]">
+                  <option value="" disabled selected>📂 移轉分類...</option>
+                  <option value="00_Inbox">📥 00_收件匣</option>
+                  <option value="01_Projects">🎯 01_進行中專案</option>
+                  <option value="02_Areas">🛡️ 02_長期領域</option>
+                  <option value="03_Resources">📚 03_知識資源</option>
+                  <option value="04_Archive">🗄️ 04_歷史封存</option>
+                </select>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <button type="button" data-action="edit-note" data-id="${safeId}" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FAF8F4] border border-[#D5CFC4] text-[#57534E] hover:text-[#1C1917]">
+                  編輯
+                </button>
+                <button type="button" data-action="delete-note" data-id="${safeId}" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FFF1F2] border border-[#FECDD3] text-[#E11D48]">
+                  刪除
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // Event Delegation for Note Actions (Prevents DOM XSS)
+    function handleNoteAction(e) {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      const target = notes.find((n) => n.id === id);
+      if (!target) return;
+
+      if (action === 'toggle-done' && e.type === 'click') {
+        target.done = !target.done;
+        saveNotes();
+        renderRecentPreview();
+        renderVaultNotes();
+        showToast(target.done ? '✅ 已標記為完成！' : '↩ 已恢復為進行中');
+      } else if (action === 'toggle-distill' && e.type === 'click') {
+        target.distilled = !target.distilled;
+        saveNotes();
+        renderVaultNotes();
+        showToast(target.distilled ? '✨ 已標亮核心關鍵字' : '已關閉重點標亮');
+      } else if (action === 'move-para' && e.type === 'change') {
+        const newPara = btn.value;
+        if (newPara) {
+          target.para = newPara;
+          saveNotes();
+          renderRecentPreview();
+          renderVaultNotes();
+          showToast(`📂 已移轉至 ${paraLabelInfo(newPara).label}`);
+        }
+      } else if (action === 'edit-note' && e.type === 'click') {
+        switchTab('capture');
+        document.getElementById('editingNoteId').value = target.id;
+        document.getElementById('paraSelect').value = target.para;
+        document.getElementById('domainSelect').value = target.domain;
+        document.getElementById('noteTypeSelect').value = target.type;
+        document.getElementById('noteTitleInput').value = target.title;
+        document.getElementById('noteDueInput').value = target.dueDate || '';
+        document.getElementById('noteContentInput').value = target.content;
+        document.getElementById('notePinnedCheckbox').checked = Boolean(target.pinned);
+        document.getElementById('submitNoteBtn').textContent = '💾 儲存修改';
+        document.getElementById('cancelEditNoteBtn').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (action === 'delete-note' && e.type === 'click') {
+        requestDeleteNote(id);
+      }
+    }
+
+    document.getElementById('recentNotesPreview').addEventListener('click', handleNoteAction);
+    document.getElementById('vaultNotesContainer').addEventListener('click', handleNoteAction);
+    document.getElementById('vaultNotesContainer').addEventListener('change', handleNoteAction);
+
+    // Delete Confirmation & 10-second Undo Protection
+    let pendingDeleteId = null;
+    let deletedBackup = null;
+    let undoTimer = null;
+
+    function requestDeleteNote(id) {
+      const target = notes.find((n) => n.id === id);
+      if (!target) return;
+      pendingDeleteId = id;
+      document.getElementById('deleteModalPreview').innerHTML = `
+        <p class="text-xs font-bold text-[#0F766E]">${escapeHtml(target.domain)} · ${escapeHtml(paraLabelInfo(target.para).label)}</p>
+        <p class="text-sm font-bold text-[#1C1917]">${escapeHtml(target.title)}</p>
+      `;
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    }
+
+    document.getElementById('cancelDeleteModalBtn').addEventListener('click', () => {
+      pendingDeleteId = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    });
+
+    document.getElementById('confirmDeleteModalBtn').addEventListener('click', () => {
+      if (!pendingDeleteId) return;
+      const idx = notes.findIndex((n) => n.id === pendingDeleteId);
+      if (idx !== -1) {
+        deletedBackup = { note: { ...notes[idx] }, index: idx };
+        notes.splice(idx, 1);
+        saveNotes();
+        renderRecentPreview();
+        renderVaultNotes();
+
+        document.getElementById('undoDeleteText').textContent = `已刪除：${deletedBackup.note.title}`;
+        document.getElementById('undoDeleteBar').classList.remove('hidden');
+        if (undoTimer) clearTimeout(undoTimer);
+        undoTimer = setTimeout(() => document.getElementById('undoDeleteBar').classList.add('hidden'), 10000);
+      }
+      pendingDeleteId = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    });
+
+    document.getElementById('undoDeleteBtn').addEventListener('click', () => {
+      if (!deletedBackup) return;
+      notes.splice(deletedBackup.index, 0, deletedBackup.note);
+      deletedBackup = null;
+      if (undoTimer) clearTimeout(undoTimer);
+      document.getElementById('undoDeleteBar').classList.add('hidden');
+      saveNotes();
+      renderRecentPreview();
+      renderVaultNotes();
+      showToast('↩ 已成功復原筆記！');
+    });
+
+    document.getElementById('dismissUndoBtn').addEventListener('click', () => {
+      document.getElementById('undoDeleteBar').classList.add('hidden');
+    });
+
+    // Portal Links Rendering & Management
+    function renderPortalLinks() {
+      const grid = document.getElementById('portalLinksGrid');
+      grid.innerHTML = portalLinks.map((item) => {
+        if (!isSafeUrl(item.url)) return '';
+        const safeId = escapeHtml(item.id);
+        return `
+          <div class="p-4 rounded-xl border border-[#E6E1D8] bg-[#FAF8F4] hover:border-[#0F766E] transition-all flex items-start justify-between gap-2">
+            <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-3 min-w-0 flex-1">
+              <span class="text-2xl shrink-0">${escapeHtml(item.icon)}</span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <h3 class="text-sm font-bold text-[#1C1917] truncate">${escapeHtml(item.name)}</h3>
+                  <span class="text-xs font-bold text-[#0F766E] shrink-0">↗</span>
+                </div>
+                <p class="text-xs text-[#57534E] mt-1 line-clamp-2">${escapeHtml(item.desc || item.url)}</p>
+              </div>
+            </a>
+            <button type="button" data-remove-portal="${safeId}" title="移除此捷徑" class="text-xs text-[#8A847C] hover:text-[#E11D48] px-1.5 py-0.5 shrink-0">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('portalLinksGrid').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-remove-portal]');
+      if (!btn) return;
+      const pid = btn.dataset.removePortal;
+      portalLinks = portalLinks.filter((p) => p.id !== pid);
+      savePortalLinks();
+      renderPortalLinks();
+      showToast('已移除捷徑');
+    });
+
+    document.getElementById('addPortalForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('portalNameInput').value.trim();
+      const desc = document.getElementById('portalDescInput').value.trim();
+      const url = document.getElementById('portalUrlInput').value.trim();
+      if (!name || !isSafeUrl(url)) {
+        showToast('請輸入有效的 https:// 網址');
+        return;
+      }
+      portalLinks.push({ id: 'p-' + Date.now().toString().slice(-5), icon: '🔗', name, desc, url });
+      savePortalLinks();
+      renderPortalLinks();
+      e.target.reset();
+      showToast('✅ 已新增傳送門捷徑（僅存於本機）');
+    });
+
+    document.getElementById('importPortalJsonInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (Array.isArray(parsed)) {
+            const valid = parsed.filter((item) => item && isSafeUrl(item.url) && item.name);
+            if (valid.length > 0) {
+              portalLinks = valid.map((item) => ({
+                id: sanitizeId(item.id) || ('p-' + Math.random().toString(36).slice(2, 7)),
+                icon: String(item.icon || '🔗').slice(0, 4),
+                name: String(item.name),
+                desc: String(item.desc || ''),
+                url: String(item.url)
+              }));
+              savePortalLinks();
+              renderPortalLinks();
+              showToast(`✅ 已安全匯入 ${portalLinks.length} 個私人系統連結！`);
+              return;
+            }
+          }
+          showToast('設定檔格式不正確或無有效連結');
+        } catch (err) {
+          showToast('匯入失敗：JSON 格式錯誤');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('exportPortalJsonBtn').addEventListener('click', () => {
+      triggerDownload('個人第二大腦_傳送門設定.json', JSON.stringify(portalLinks, null, 2), 'application/json');
+      showToast('📤 已匯出傳送門設定檔');
+    });
+
+    // Vault Filters Wiring
+    function updateParaFilterButtons() {
+      document.querySelectorAll('.para-filter-btn').forEach((btn) => {
+        if (btn.dataset.para === activeParaFilter) {
+          btn.className = 'para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0F766E] text-white';
+        } else {
+          btn.className = 'para-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#EFECE6] text-[#57534E]';
+        }
+      });
+    }
+
+    document.querySelectorAll('.para-filter-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeParaFilter = btn.dataset.para;
+        updateParaFilterButtons();
+        renderVaultNotes();
+      });
+    });
+
+    document.getElementById('searchVaultInput').addEventListener('input', renderVaultNotes);
+    document.getElementById('filterDomainSelect').addEventListener('change', renderVaultNotes);
+    document.getElementById('filterOnlyTodo').addEventListener('change', renderVaultNotes);
+
+    // Weekly Review Checklist
+    function renderWeeklyReview() {
+      let checkedMap = {};
+      try { checkedMap = JSON.parse(localStorage.getItem(WEEKLY_STORAGE_KEY) || '{}'); } catch (e) {}
+
+      const listEl = document.getElementById('weeklyReviewList');
+      listEl.innerHTML = WEEKLY_STEPS.map((s) => {
+        const isChecked = Boolean(checkedMap[s.id]);
+        return `
+          <label class="flex items-start gap-3 p-3 rounded-xl border ${isChecked ? 'bg-[#ECFDF5]/60 border-[#A7F3D0]' : 'bg-[#FAF8F4] border-[#E6E1D8]'} cursor-pointer">
+            <input type="checkbox" data-step="${s.id}" ${isChecked ? 'checked' : ''} class="mt-0.5 w-4 h-4 accent-[#0F766E]" />
+            <div>
+              <span class="text-xs font-bold text-[#0F766E]">${escapeHtml(s.code)}</span>
+              <p class="text-xs sm:text-sm font-medium text-[#1C1917] ${isChecked ? 'line-through opacity-70' : ''}">${escapeHtml(s.text)}</p>
+            </div>
+          </label>
+        `;
+      }).join('');
+
+      const doneCount = WEEKLY_STEPS.filter((s) => checkedMap[s.id]).length;
+      document.getElementById('weeklyReviewStatus').textContent =
+        doneCount === WEEKLY_STEPS.length
+          ? '🎉 太棒了！您已完成本週的第二大腦清倉檢視！'
+          : `本週檢視進度：已完成 ${doneCount} / ${WEEKLY_STEPS.length} 項`;
+
+      listEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+        cb.addEventListener('change', () => {
+          checkedMap[cb.dataset.step] = cb.checked;
+          localStorage.setItem(WEEKLY_STORAGE_KEY, JSON.stringify(checkedMap));
+          renderWeeklyReview();
+        });
+      });
+    }
+
+    document.getElementById('resetWeeklyReviewBtn').addEventListener('click', () => {
+      localStorage.removeItem(WEEKLY_STORAGE_KEY);
+      renderWeeklyReview();
+      showToast('已重置本週檢視清單');
+    });
+
+    // Exports & Imports
+    function triggerDownload(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+      const header = ['紀錄ID', '建立日期', 'PARA分類', '領域標籤', '類型', '主旨', '詳細內容', '狀態', '期限'];
+      const rows = notes.map((n) => [
+        n.id, n.createdAt, n.para, n.domain, n.type,
+        `"${String(n.title).replace(/"/g, '""')}"`,
+        `"${String(n.content).replace(/"/g, '""')}"`,
+        n.done ? '已完成' : '進行中',
+        n.dueDate || ''
+      ]);
+      const csv = '\uFEFF' + [header.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      triggerDownload(`個人第二大腦_${new Date().toISOString().slice(0,10)}.csv`, csv, 'text/csv;charset=utf-8');
+      showToast('📊 已匯出 CSV 檔案');
+    });
+
+    document.getElementById('exportMdBtn').addEventListener('click', () => {
+      const mdLines = [`# 🧠 個人第二大腦知識庫匯出 (${new Date().toISOString().slice(0,10)})`, ''];
+      notes.forEach((n) => {
+        mdLines.push(`## [${n.para}] ${n.title}`);
+        mdLines.push(`- **領域標籤**：${n.domain} | **類型**：${n.type} | **狀態**：${n.done ? '已完成' : '進行中'}`);
+        if (n.dueDate) mdLines.push(`- **目標期限**：${n.dueDate}`);
+        mdLines.push(`- **內容**：${n.content}`);
+        mdLines.push('');
+      });
+      triggerDownload(`個人第二大腦_${new Date().toISOString().slice(0,10)}.md`, mdLines.join('\n'), 'text/markdown;charset=utf-8');
+      showToast('📝 已匯出 Markdown 筆記檔');
+    });
+
+    document.getElementById('exportJsonBtn').addEventListener('click', () => {
+      triggerDownload(`個人第二大腦備份_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(notes, null, 2), 'application/json');
+      showToast('📦 已匯出 JSON 完整備份');
+    });
+
+    document.getElementById('importJsonInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (Array.isArray(parsed)) {
+            notes = parsed.map((n) => ({
+              id: sanitizeId(n.id) || ('SB-' + Math.random().toString(36).slice(2, 7)),
+              createdAt: String(n.createdAt || ''),
+              dueDate: String(n.dueDate || ''),
+              para: String(n.para || '00_Inbox'),
+              domain: String(n.domain || '#工作管理'),
+              type: String(n.type || '靈感速記'),
+              title: String(n.title || ''),
+              content: String(n.content || ''),
+              done: Boolean(n.done),
+              pinned: Boolean(n.pinned),
+              distilled: Boolean(n.distilled)
+            }));
+            saveNotes();
+            renderRecentPreview();
+            renderVaultNotes();
+            showToast('✅ 已成功匯入第二大腦備份！');
+          }
+        } catch (err) {
+          showToast('匯入失敗：JSON 格式不正確');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Secure GAS Template with Secret Token Validation
+    const GAS_TEMPLATE = `// 個人第二大腦_雲端中樞資料庫 安全同步腳本
+const SPREADSHEET_ID = '請貼上您的試算表ID';
+const SECRET_TOKEN = '請設定您的自訂安全金鑰';
+
+function doPost(e) {
+  const payload = JSON.parse(e.postData.contents);
+  if (!payload || payload.token !== SECRET_TOKEN) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'Unauthorized' })).setMimeType(ContentService.MimeType.JSON);
+  }
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName('00_語音速記與靈感收件匣') || ss.getSheets()[0];
+  if (Array.isArray(payload.notes)) {
+    sheet.clearContents();
+    sheet.appendRow(['紀錄ID', '建立日期', 'PARA分類', '領域標籤', '類型', '主旨 / 一句話重點', '完整語音速記與筆記內容', '狀態', '預計行動 / 期限']);
+    payload.notes.forEach(n => {
+      sheet.appendRow([n.id, n.createdAt, n.para, n.domain, n.type, n.title, n.content, n.done ? '已完成' : '進行中', n.dueDate || '']);
+    });
+  }
+  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+}`;
+
+    document.getElementById('copyGasCodeBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(GAS_TEMPLATE).then(() => {
+        showToast('📋 已複製安全版 GAS 腳本範本');
+      });
+    });
+
+    const gasInput = document.getElementById('gasWebhookInput');
+    const gasTokenInput = document.getElementById('gasTokenInput');
+    gasInput.value = localStorage.getItem(GAS_URL_KEY) || '';
+    gasTokenInput.value = localStorage.getItem(GAS_TOKEN_KEY) || '';
+    gasInput.addEventListener('change', () => localStorage.setItem(GAS_URL_KEY, gasInput.value.trim()));
+    gasTokenInput.addEventListener('change', () => localStorage.setItem(GAS_TOKEN_KEY, gasTokenInput.value.trim()));
+
+    document.getElementById('syncToCloudBtn').addEventListener('click', async () => {
+      const url = gasInput.value.trim();
+      const token = gasTokenInput.value.trim();
+      if (!isSafeUrl(url) || !url.startsWith('https://script.google.com/')) {
+        showToast('請先輸入有效的 Google Apps Script https://script.google.com/ 網址');
+        return;
+      }
+      localStorage.setItem(GAS_URL_KEY, url);
+      localStorage.setItem(GAS_TOKEN_KEY, token);
+      try {
+        showToast('☁️ 正在加密同步至 Google Sheets...');
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: JSON.stringify({ token, notes })
+        });
+        showToast('✅ 已發送安全同步請求！');
+      } catch (e) {
+        showToast('同步發送失敗，請檢查網址');
+      }
+    });
+
+    document.getElementById('clearAllLocalBtn').addEventListener('click', () => {
+      if (confirm('確定要清除此瀏覽器內所有第二大腦筆記、傳送門捷徑與同步設定嗎？')) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(WEEKLY_STORAGE_KEY);
+        localStorage.removeItem(PORTAL_STORAGE_KEY);
+        localStorage.removeItem(GAS_URL_KEY);
+        localStorage.removeItem(GAS_TOKEN_KEY);
+        location.reload();
+      }
+    });
+
+    // Initialize
+    loadNotes();
+    loadPortalLinks();
+    updateStats();
+    renderRecentPreview();
+    renderVaultNotes();
+    renderPortalLinks();
+    renderWeeklyReview();
+  </script>
+</body>
+</html>
