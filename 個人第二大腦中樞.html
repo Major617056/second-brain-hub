@@ -911,7 +911,27 @@
       return map[str] || null;
     }
 
-    // Clean repeated words/phrases (2~30 chars) & Android speech recognition artifacts
+    // Longest Common Subsequence length helper for fuzzy ASR self-correction deduplication
+    function lcsLength(a, b) {
+      const m = a.length, n = b.length;
+      if (m === 0 || n === 0) return 0;
+      const dp = new Array(n + 1).fill(0);
+      for (let i = 1; i <= m; i++) {
+        let prev = 0;
+        for (let j = 1; j <= n; j++) {
+          const temp = dp[j];
+          if (a[i - 1] === b[j - 1]) {
+            dp[j] = prev + 1;
+          } else {
+            dp[j] = Math.max(dp[j], dp[j - 1]);
+          }
+          prev = temp;
+        }
+      }
+      return dp[n];
+    }
+
+    // Clean repeated words/phrases (2~30 chars) & Android speech recognition self-correction duplicates
     function cleanSpeechText(str) {
       if (!str) return '';
       let result = String(str)
@@ -926,17 +946,41 @@
         .replace(/辦事細[折責]/g, '辦事細則')
         .replace(/原[使始][點典]/g, '原始點');
 
+      // Step 1: Exact adjacent duplicate collapse
       let prev;
       do {
         prev = result;
-        // Collapse adjacent repeated phrases of 2 to 30 characters (e.g. "明天明天..." then "明天整理定期契約人員明天整理定期契約人員...")
         result = result.replace(/([\u4e00-\u9fa5A-Za-z0-9]{2,30}?)\1+/g, '$1');
       } while (result !== prev);
+
+      // Step 2: Fuzzy ASR draft-revision collapse (e.g., "今天凱先買了衣服今天開心買了衣服花了3000元" -> "今天開心買了衣服花了3000元")
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (let i = 0; i < result.length - 6; i++) {
+          const anchor = result.slice(i, i + 2);
+          if (!/^[\u4e00-\u9fa5A-Za-z0-9]{2}$/.test(anchor)) continue;
+          const nextIdx = result.indexOf(anchor, i + 4);
+          if (nextIdx !== -1) {
+            const draft = result.slice(i, nextIdx);
+            const windowLen = Math.min(result.length - nextIdx, draft.length + 2);
+            const revisedPrefix = result.slice(nextIdx, nextIdx + windowLen);
+            if (draft.length >= 4 && draft.length <= 25) {
+              const lcs = lcsLength(draft, revisedPrefix);
+              if (lcs / draft.length >= 0.68) {
+                result = result.slice(0, i) + result.slice(nextIdx);
+                changed = true;
+                break;
+              }
+            }
+          }
+        }
+      }
 
       return result.trim();
     }
 
-    // Merge cumulative/overlapping Web Speech API segments (fixes Android Chrome continuous mode bug)
+    // Merge cumulative/overlapping/self-corrected Web Speech API segments (fixes Android Chrome continuous mode bug)
     function mergeTranscriptChunk(acc, nextRaw) {
       const cleanAcc = String(acc || '').trim();
       const cleanNext = String(nextRaw || '').replace(/^[，,。、！？\s]+/, '').trim();
@@ -951,7 +995,15 @@
       if (cleanAcc.endsWith(cleanNext)) {
         return cleanAcc;
       }
-      // Case 3: Partial overlap between suffix of acc and prefix of next
+      // Case 3: Android Chrome ASR self-correction (e.g. "今天凱先買了衣服" -> "今天開心買了衣服花了3000元")
+      if (cleanAcc.length >= 4 && cleanNext.length >= cleanAcc.length) {
+        const compareSlice = cleanNext.slice(0, Math.min(cleanNext.length, cleanAcc.length + 3));
+        const lcs = lcsLength(cleanAcc, compareSlice);
+        if (lcs / cleanAcc.length >= 0.65) {
+          return cleanNext;
+        }
+      }
+      // Case 4: Partial overlap between suffix of acc and prefix of next
       const maxOverlap = Math.min(cleanAcc.length, cleanNext.length);
       for (let len = maxOverlap; len >= 2; len--) {
         if (cleanAcc.slice(-len) === cleanNext.slice(0, len)) {
