@@ -601,6 +601,42 @@
 
   </main>
 
+  <!-- Note Detail & Quick Action Modal (Direct Open from Recent Preview) -->
+  <div id="noteDetailModal" class="hidden fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="surface-card rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 max-h-[88vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-3">
+        <div id="detailModalBadges" class="flex flex-wrap items-center gap-1.5"></div>
+        <button type="button" id="closeDetailModalBtn" aria-label="關閉視窗" class="px-2 py-1 rounded-lg text-sm font-bold text-[#8A847C] hover:text-[#1C1917] hover:bg-[#EFECE6]">✕</button>
+      </div>
+
+      <div class="space-y-2">
+        <h3 id="detailModalTitle" class="text-base sm:text-lg font-bold text-[#1C1917] leading-snug"></h3>
+        <p id="detailModalMeta" class="font-num text-[11px] text-[#8A847C]"></p>
+        <div id="detailModalContent" class="p-3.5 rounded-xl bg-[#FAF8F4] border border-[#E6E1D8] text-xs sm:text-sm text-[#1C1917] leading-relaxed whitespace-pre-wrap"></div>
+      </div>
+
+      <div id="detailModalExternalWrap" class="hidden"></div>
+
+      <div class="pt-3 border-t border-[#E6E1D8] flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button type="button" id="detailToggleDoneBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold border"></button>
+          <button type="button" id="detailDistillBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold border"></button>
+          <select id="detailMoveParaSelect" aria-label="移轉 PARA 分類" class="text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-[#FAF8F4] border border-[#D5CFC4] text-[#57534E]">
+            <option value="00_Inbox">📥 00_收件匣</option>
+            <option value="01_Projects">🎯 01_進行中專案</option>
+            <option value="02_Areas">🛡️ 02_長期領域</option>
+            <option value="03_Resources">📚 03_知識資源</option>
+            <option value="04_Archive">🗄️ 04_歷史封存</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button type="button" id="detailEditBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#0F766E] text-white hover:bg-[#115E59]">✏️ 編輯</button>
+          <button type="button" id="detailDeleteBtn" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#FFF1F2] border border-[#FECDD3] text-[#E11D48]">刪除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Delete Confirmation Modal -->
   <div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="surface-card rounded-2xl max-w-sm w-full p-5 space-y-4">
@@ -1334,7 +1370,7 @@
         const pInfo = paraLabelInfo(n.para);
         const safeId = escapeHtml(n.id);
         return `
-          <div class="p-3 rounded-xl bg-[#FAF8F4] border border-[#E6E1D8] flex items-start justify-between gap-3">
+          <div data-action="open-note" data-id="${safeId}" role="button" tabindex="0" class="p-3 rounded-xl bg-[#FAF8F4] border border-[#E6E1D8] hover:border-[#0F766E] hover:bg-white cursor-pointer transition-all flex items-start justify-between gap-3 group">
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-1.5 mb-1">
                 ${n.pinned ? '<span class="text-xs">⭐</span>' : ''}
@@ -1343,10 +1379,11 @@
                 <span class="text-[11px] text-[#8A847C]">${escapeHtml(n.type)}</span>
                 ${n.dueDate ? `<span class="font-num text-[11px] text-[#92400E] font-semibold">📅 ${escapeHtml(n.dueDate)}</span>` : ''}
               </div>
-              <p class="text-xs sm:text-sm font-bold text-[#1C1917] ${n.done ? 'line-through opacity-60' : ''}">${escapeHtml(n.title)}</p>
+              <p class="text-xs sm:text-sm font-bold text-[#1C1917] group-hover:text-[#0F766E] transition-colors ${n.done ? 'line-through opacity-60' : ''}">${escapeHtml(n.title)}</p>
               <p class="text-xs text-[#57534E] truncate mt-0.5">${escapeHtml(n.content)}</p>
+              <p class="text-[11px] font-semibold text-[#0F766E] mt-1">點擊直接開啟詳情與操作 ↗</p>
             </div>
-            <button type="button" data-action="toggle-done" data-id="${safeId}" class="shrink-0 px-2.5 py-1 rounded-lg border text-xs font-bold ${n.done ? 'bg-[#ECFDF5] text-[#0F766E] border-[#A7F3D0]' : 'bg-white text-[#57534E] border-[#D5CFC4]'}">
+            <button type="button" data-action="toggle-done" data-id="${safeId}" class="shrink-0 px-2.5 py-1 rounded-lg border text-xs font-bold ${n.done ? 'bg-[#ECFDF5] text-[#0F766E] border-[#A7F3D0]' : 'bg-white text-[#57534E] border-[#D5CFC4] hover:border-[#0F766E]'}">
               ${n.done ? '✓ 已完成' : '標記完成'}
             </button>
           </div>
@@ -1391,8 +1428,8 @@
               <span class="font-num text-[11px] text-[#8A847C]">${safeId} · ${escapeHtml(n.createdAt)}</span>
             </div>
 
-            <div>
-              <h3 class="text-sm sm:text-base font-bold text-[#1C1917] ${n.done ? 'line-through opacity-60' : ''}">
+            <div data-action="open-note" data-id="${safeId}" class="cursor-pointer group">
+              <h3 class="text-sm sm:text-base font-bold text-[#1C1917] group-hover:text-[#0F766E] transition-colors ${n.done ? 'line-through opacity-60' : ''}">
                 ${highlightKeyPhrases(n.title, n.distilled)}
               </h3>
               <p class="text-xs sm:text-sm text-[#57534E] mt-1 leading-relaxed">
@@ -1432,6 +1469,128 @@
       }).join('');
     }
 
+    // Note Detail Modal Logic
+    let activeDetailNoteId = null;
+    const noteDetailModal = document.getElementById('noteDetailModal');
+
+    function openNoteDetailModal(id) {
+      const n = notes.find((item) => item.id === id);
+      if (!n) return;
+      activeDetailNoteId = n.id;
+      const pInfo = paraLabelInfo(n.para);
+
+      document.getElementById('detailModalBadges').innerHTML = `
+        ${n.pinned ? '<span class="text-sm">⭐</span>' : ''}
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-md ${pInfo.cls}">${pInfo.label}</span>
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#ECFDF5] text-[#0F766E]">${escapeHtml(n.domain)}</span>
+        <span class="text-xs px-2 py-0.5 rounded-md bg-[#EFECE6] text-[#57534E] font-medium">${escapeHtml(n.type)}</span>
+        ${n.dueDate ? `<span class="font-num text-xs px-2 py-0.5 rounded-md bg-[#FEF3C7] text-[#92400E] font-semibold">📅 期限 ${escapeHtml(n.dueDate)}</span>` : ''}
+      `;
+      document.getElementById('detailModalTitle').innerHTML = highlightKeyPhrases(n.title, n.distilled);
+      document.getElementById('detailModalTitle').className = `text-base sm:text-lg font-bold text-[#1C1917] leading-snug ${n.done ? 'line-through opacity-60' : ''}`;
+      document.getElementById('detailModalMeta').textContent = `編號 ${n.id} · 建立日期 ${n.createdAt}`;
+      document.getElementById('detailModalContent').innerHTML = highlightKeyPhrases(n.content, n.distilled);
+
+      const doneBtn = document.getElementById('detailToggleDoneBtn');
+      doneBtn.textContent = n.done ? '✓ 已完成 (點擊恢復)' : '☐ 標記完成';
+      doneBtn.className = `px-3 py-1.5 rounded-xl text-xs font-bold border ${n.done ? 'bg-[#ECFDF5] text-[#0F766E] border-[#A7F3D0]' : 'bg-white text-[#1C1917] border-[#D5CFC4]'}`;
+
+      const distillBtn = document.getElementById('detailDistillBtn');
+      distillBtn.textContent = `✨ ${n.distilled ? '已提煉重點' : '提煉重點'}`;
+      distillBtn.className = `px-3 py-1.5 rounded-xl text-xs font-bold border ${n.distilled ? 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]' : 'bg-white text-[#57534E] border-[#D5CFC4]'}`;
+
+      document.getElementById('detailMoveParaSelect').value = n.para;
+
+      // Detect matching portal link or URL inside note
+      const extWrap = document.getElementById('detailModalExternalWrap');
+      const matchedLinks = portalLinks.filter((p) =>
+        isSafeUrl(p.url) && (n.title.includes(p.name) || n.content.includes(p.name) ||
+        (p.name.includes('NotebookLM') && /NotebookLM/i.test(n.title + n.content)) ||
+        (p.name.includes('記帳') && /記帳|刷卡|對帳/.test(n.title + n.content)) ||
+        (p.name.includes('課堂') && /課堂|收費|學員/.test(n.title + n.content)) ||
+        (p.name.includes('易經') && /易經|卜卦/.test(n.title + n.content)))
+      );
+      if (matchedLinks.length > 0) {
+        extWrap.innerHTML = matchedLinks.map((lnk) => `
+          <a href="${escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-bold text-[#0F766E] hover:bg-[#D1FAE5]">
+            <span>${escapeHtml(lnk.icon)} 開啟「${escapeHtml(lnk.name)}」↗</span>
+          </a>
+        `).join(' ');
+        extWrap.classList.remove('hidden');
+      } else {
+        extWrap.classList.add('hidden');
+      }
+
+      noteDetailModal.classList.remove('hidden');
+    }
+
+    function closeNoteDetailModal() {
+      activeDetailNoteId = null;
+      noteDetailModal.classList.add('hidden');
+    }
+
+    document.getElementById('closeDetailModalBtn').addEventListener('click', closeNoteDetailModal);
+    noteDetailModal.addEventListener('click', (e) => {
+      if (e.target === noteDetailModal) closeNoteDetailModal();
+    });
+
+    document.getElementById('detailToggleDoneBtn').addEventListener('click', () => {
+      const target = notes.find((n) => n.id === activeDetailNoteId);
+      if (!target) return;
+      target.done = !target.done;
+      saveNotes();
+      renderRecentPreview();
+      renderVaultNotes();
+      openNoteDetailModal(target.id);
+      showToast(target.done ? '✅ 已標記為完成！' : '↩ 已恢復為進行中');
+    });
+
+    document.getElementById('detailDistillBtn').addEventListener('click', () => {
+      const target = notes.find((n) => n.id === activeDetailNoteId);
+      if (!target) return;
+      target.distilled = !target.distilled;
+      saveNotes();
+      renderVaultNotes();
+      openNoteDetailModal(target.id);
+      showToast(target.distilled ? '✨ 已標亮核心關鍵字' : '已關閉重點標亮');
+    });
+
+    document.getElementById('detailMoveParaSelect').addEventListener('change', (e) => {
+      const target = notes.find((n) => n.id === activeDetailNoteId);
+      if (!target) return;
+      target.para = e.target.value;
+      saveNotes();
+      renderRecentPreview();
+      renderVaultNotes();
+      openNoteDetailModal(target.id);
+      showToast(`📂 已移轉至 ${paraLabelInfo(target.para).label}`);
+    });
+
+    document.getElementById('detailEditBtn').addEventListener('click', () => {
+      const id = activeDetailNoteId;
+      closeNoteDetailModal();
+      const target = notes.find((n) => n.id === id);
+      if (!target) return;
+      switchTab('capture');
+      document.getElementById('editingNoteId').value = target.id;
+      document.getElementById('paraSelect').value = target.para;
+      document.getElementById('domainSelect').value = target.domain;
+      document.getElementById('noteTypeSelect').value = target.type;
+      document.getElementById('noteTitleInput').value = target.title;
+      document.getElementById('noteDueInput').value = target.dueDate || '';
+      document.getElementById('noteContentInput').value = target.content;
+      document.getElementById('notePinnedCheckbox').checked = Boolean(target.pinned);
+      document.getElementById('submitNoteBtn').textContent = '💾 儲存修改';
+      document.getElementById('cancelEditNoteBtn').classList.remove('hidden');
+      document.getElementById('noteTitleInput').focus();
+    });
+
+    document.getElementById('detailDeleteBtn').addEventListener('click', () => {
+      const id = activeDetailNoteId;
+      closeNoteDetailModal();
+      if (id) requestDeleteNote(id);
+    });
+
     function handleNoteAction(e) {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -1440,7 +1599,9 @@
       const target = notes.find((n) => n.id === id);
       if (!target) return;
 
-      if (action === 'toggle-done' && e.type === 'click') {
+      if (action === 'open-note' && e.type === 'click') {
+        openNoteDetailModal(id);
+      } else if (action === 'toggle-done' && e.type === 'click') {
         target.done = !target.done;
         saveNotes();
         renderRecentPreview();
